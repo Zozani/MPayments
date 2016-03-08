@@ -25,8 +25,9 @@ class Config(CConstants):
     from Common.models import Organization, Version
 
     try:
-        DB_VERS = Version().get(Version.number == 1)
-    except:
+        DB_VERS = Version().get(Version.id == 1)
+    except Exception as e:
+        print(e)
         DB_VERS = 1
     try:
         sttg = Organization().get(Organization.id == 1)
@@ -39,7 +40,8 @@ class Config(CConstants):
         # DEBUG = True
     except Exception as e:
         print(e)
-    DEBUG = True
+    # DEBUG = True
+    DEBUG = False
 
     # des_image_record = "static/img_prod"
     ARMOIRE = "img_prod"
@@ -57,8 +59,10 @@ class Config(CConstants):
     pdf_source = "pdf_source.pdf"
     APP_NAME = "CMPayments"
 
-    APP_VERSION = u"1.0.0"
+    APP_VERSION = u"2.0"
     APP_DATE = u"02/2016"
     img_media = os.path.join(os.path.join(ROOT_DIR, "static"), "images/")
     APP_LOGO = os.path.join(img_media, "logo.png")
     APP_LOGO_ICO = os.path.join(img_media, "logo.ico")
+#!/usr/bin/env python
+    DEVISE = "$"

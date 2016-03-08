@@ -130,7 +130,7 @@ class DebtsViewWidget(FWidget):
                             (2, self.table.totals_debit),
                             (3, self.table.totals_credit), ],
             "footers": [
-                ("C", "E", "Solde au {} = {}".format(self.now, self.table.balance_tt)), ],
+                ("C", "E", "Solde au {} = {} {}".format(self.now, self.table.balance_tt, Config.DEVISE)), ],
             'sheet': self.title,
             # 'title': self.title,
             'widths': self.table.stretch_columns,
@@ -152,8 +152,8 @@ class DebtsViewWidget(FWidget):
                          payment=None, type_=Payment.DEBIT, table_p=self.table)
 
     def display_remaining(self, text):
-        return """ <h2>Solde au {} : <b>{}</b> Fcfa </h2>
-               """.format(self.now,  text)
+        return """ <h2>Solde au {} : <b>{}</b> {} </h2>
+               """.format(self.now,  text, Config.DEVISE)
 
 
 class ProviderOrClientTableWidget(QListWidget):
@@ -276,7 +276,7 @@ class RapportTableWidget(FTableWidget):
     def set_data_for(self, date_, provid_clt_id=None, search=None):
         self.provid_clt_id = provid_clt_id
         qs = Payment.select().where(
-            Payment.status == False).order_by(Payment.date.desc())
+            Payment.status == False).order_by(Payment.date.asc())
 
         self.remaining = 0
         if isinstance(provid_clt_id, int):
@@ -289,7 +289,7 @@ class RapportTableWidget(FTableWidget):
         self.parent.label_balance.setText(
             self.parent.display_remaining(formatted_number(self.remaining)))
 
-        print(provid_clt_id, search)
+        # print(provid_clt_id, search)
         self.data = [(show_date(pay.date), pay.libelle, pay.debit, pay.credit,
                       pay.balance, pay.id) for pay in qs.iterator()]
 
@@ -327,16 +327,17 @@ class RapportTableWidget(FTableWidget):
         for row_num in range(0, self.data.__len__()):
             mtt_debit = is_int(unicode(self.item(row_num, 2).text()))
             mtt_credit = is_int(unicode(self.item(row_num, 3).text()))
-            if cp == 0:
-                last_balance = is_int(unicode(self.item(row_num, 4).text()))
+            # if cp == 0:
+            last_balance = is_int(unicode(self.item(row_num, 4).text()))
             self.totals_debit += mtt_debit
             self.totals_credit += mtt_credit
             cp += 1
 
         self.balance_tt = last_balance
-        print(self.provid_clt_id)
-        if isinstance(self.provid_clt_id, str) or not self.provid_clt_id:
-            self.balance_tt = self.totals_debit - self.totals_credit
+        # print(self.provid_clt_id)
+        # if isinstance(self.provid_clt_id, str) or not self.provid_clt_id:
+        #     self.balance_tt = self.totals_debit - self.totals_credit
+        # self.balance_tt = self.totals_debit - self.totals_credit
 
         self.label_mov_tt = u"Totals mouvements: "
         self.setItem(nb_rows, 1, TotalsWidget(self.label_mov_tt))
