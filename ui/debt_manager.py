@@ -4,8 +4,8 @@
 
 
 from PyQt4.QtGui import (QSplitter, QHBoxLayout, QVBoxLayout, QPushButton,
-                         QTableWidgetItem, QPixmap, QFont, QListWidget, QMenu,
-                         QListWidgetItem, QIcon, QFormLayout, QGridLayout)
+                         QPixmap, QFont, QListWidget, QMenu, QListWidgetItem,
+                         QIcon, QFormLayout, QGridLayout)
 
 from datetime import datetime, date
 from PyQt4.QtCore import Qt, SIGNAL, SLOT, QSize, QDate
@@ -16,7 +16,7 @@ from models import ProviderOrClient, Payment
 from Common.ui.common import (BttExportXLS, FWidget, FBoxTitle, Button,
                               LineEdit, FLabel, FormatDate, FormLabel)
 from Common.ui.table import FTableWidget, TotalsWidget
-from Common.ui.util import formatted_number, show_date, is_int, date_to_datetime
+from Common.ui.util import formatted_number, show_date, is_float, date_to_datetime
 
 from ui.payment_edit_add import EditOrAddPaymentrDialog
 from GCommon.ui.provider_client_edit_add import EditOrAddClientOrProviderDialog
@@ -260,7 +260,7 @@ class RapportTableWidget(FTableWidget):
         self.sorter = False
         self.stretch_columns = [0, 1, 2, 3, 4]
         self.align_map = {0: 'l', 1: 'l', 2: 'r', 3: 'r', 4: 'r'}
-        # self.ecart = -5
+        self.ecart = -15
         self.display_vheaders = False
         self.refresh_()
 
@@ -292,6 +292,7 @@ class RapportTableWidget(FTableWidget):
         # print(provid_clt_id, search)
         self.data = [(show_date(pay.date), pay.libelle, pay.debit, pay.credit,
                       pay.balance, pay.id) for pay in qs.iterator()]
+        print(self.data)
 
     def popup(self, pos):
 
@@ -325,19 +326,20 @@ class RapportTableWidget(FTableWidget):
         self.balance_tt = 0
         cp = 0
         for row_num in range(0, self.data.__len__()):
-            mtt_debit = is_int(unicode(self.item(row_num, 2).text()))
-            mtt_credit = is_int(unicode(self.item(row_num, 3).text()))
+            mtt_debit = is_float(unicode(self.item(row_num, 2).text()))
+            mtt_credit = is_float(unicode(self.item(row_num, 3).text()))
             # if cp == 0:
-            last_balance = is_int(unicode(self.item(row_num, 4).text()))
+            last_balance = is_float(unicode(self.item(row_num, 4).text()))
             self.totals_debit += mtt_debit
             self.totals_credit += mtt_credit
+            print(mtt_credit, mtt_debit)
             cp += 1
 
-        self.balance_tt = last_balance
+        # self.balance_tt = last_balance
         # print(self.provid_clt_id)
         # if isinstance(self.provid_clt_id, str) or not self.provid_clt_id:
         #     self.balance_tt = self.totals_debit - self.totals_credit
-        # self.balance_tt = self.totals_debit - self.totals_credit
+        self.balance_tt = self.totals_debit - self.totals_credit
 
         self.label_mov_tt = u"Totals mouvements: "
         self.setItem(nb_rows, 1, TotalsWidget(self.label_mov_tt))

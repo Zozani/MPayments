@@ -59,7 +59,7 @@ class EditOrAddPaymentrDialog(QDialog, FWidget):
             self.payment = Payment()
         self.setWindowTitle(self.title)
 
-        self.amount_field = IntLineEdit(unicode(amount))
+        self.amount_field = IntLineEdit(unicode(amount).replace(".", ","))
         self.libelle_field = QTextEdit(self.payment.libelle)
 
         vbox = QVBoxLayout()
@@ -83,7 +83,8 @@ class EditOrAddPaymentrDialog(QDialog, FWidget):
 
         payment_date = unicode(self.payment_date_field.text())
         libelle = unicode(self.libelle_field.toPlainText())
-        amount = int(self.amount_field.text().replace(" ", ""))
+        amount = float(
+            unicode(self.amount_field.text().replace(",", ".").replace(" ", "")))
 
         payment = self.payment
         payment.type_ = self.type_
