@@ -80,11 +80,11 @@ class EditOrAddPaymentrDialog(QDialog, FWidget):
         ''' add operation '''
         if check_is_empty(self.amount_field):
             return
-
+        self.pro_clt_id = self.table_p.provid_clt_id
         payment_date = unicode(self.payment_date_field.text())
         libelle = unicode(self.libelle_field.toPlainText())
         amount = float(
-            unicode(self.amount_field.text().replace(",", ".").replace(" ", "")))
+            unicode(self.amount_field.text().replace(",", ".").replace(" ", "").replace('\xa0', '')))
 
         payment = self.payment
         payment.type_ = self.type_
@@ -101,7 +101,6 @@ class EditOrAddPaymentrDialog(QDialog, FWidget):
             self.close()
             self.parent.Notify(u"le {type} {lib} à été enregistré avec succès".format(
                 type=self.type_, lib=libelle), "success")
-            self.table_p.refresh_()
+            self.table_p.refresh_(provid_clt_id=self.pro_clt_id)
         except Exception as e:
-            print("save_edit", e)
             self.parent.Notify(e, "error")

@@ -142,12 +142,10 @@ class DebtsViewWidget(FWidget):
         export_dynamic_data(dict_data)
 
     def add_payment(self):
-        print("add_payment")
         self.open_dialog(EditOrAddPaymentrDialog, modal=True,
                          payment=None, type_=Payment.CREDIT, table_p=self.table)
 
     def sub_payment(self):
-        print("sub_payment")
         self.open_dialog(EditOrAddPaymentrDialog, modal=True,
                          payment=None, type_=Payment.DEBIT, table_p=self.table)
 
@@ -289,10 +287,8 @@ class RapportTableWidget(FTableWidget):
         self.parent.label_balance.setText(
             self.parent.display_remaining(formatted_number(self.remaining)))
 
-        # print(provid_clt_id, search)
         self.data = [(show_date(pay.date), pay.libelle, pay.debit, pay.credit,
                       pay.balance, pay.id) for pay in qs.iterator()]
-        print(self.data)
 
     def popup(self, pos):
 
@@ -326,17 +322,15 @@ class RapportTableWidget(FTableWidget):
         self.balance_tt = 0
         cp = 0
         for row_num in range(0, self.data.__len__()):
-            mtt_debit = is_float(unicode(self.item(row_num, 2).text()))
-            mtt_credit = is_float(unicode(self.item(row_num, 3).text()))
+            mtt_debit = is_float(str(self.item(row_num, 2).text()))
+            mtt_credit = is_float(str(self.item(row_num, 3).text()))
             # if cp == 0:
-            last_balance = is_float(unicode(self.item(row_num, 4).text()))
+            last_balance = is_float(str(self.item(row_num, 4).text()))
             self.totals_debit += mtt_debit
             self.totals_credit += mtt_credit
-            print(mtt_credit, mtt_debit)
             cp += 1
 
         # self.balance_tt = last_balance
-        # print(self.provid_clt_id)
         # if isinstance(self.provid_clt_id, str) or not self.provid_clt_id:
         #     self.balance_tt = self.totals_debit - self.totals_credit
         self.balance_tt = self.totals_debit - self.totals_credit
