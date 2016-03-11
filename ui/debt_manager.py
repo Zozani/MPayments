@@ -76,11 +76,11 @@ class DebtsViewWidget(FWidget):
         self.add_prov_btt.setMaximumHeight(60)
         self.add_prov_btt.clicked.connect(self.add_prov_or_clt)
         editbox = QGridLayout()
-        # editbox.addWidget(FormLabel(u"Date debut"), 0, 1)
-        # editbox.addWidget(self.on_date, 0, 2)
-        # editbox.addWidget(FormLabel(u"Date fin"), 1, 1)
-        # editbox.addWidget(self.end_date, 1, 2)
-        # editbox.addWidget(self.button, 1, 3)
+        editbox.addWidget(FormLabel(u"Date debut"), 0, 1)
+        editbox.addWidget(self.on_date, 0, 2)
+        editbox.addWidget(FormLabel(u"Date fin"), 1, 1)
+        editbox.addWidget(self.end_date, 1, 2)
+        editbox.addWidget(self.button, 1, 3)
         editbox.addWidget(self.sub_btt, 1, 5)
         editbox.addWidget(self.add_btt, 1, 6)
         editbox.addWidget(self.btt_export, 1, 7)
@@ -197,12 +197,15 @@ class ProviderOrClientTableWidget(QListWidget):
             self.addItem(ProviderOrClientQListWidgetItem(provid_clt))
 
     def handleClicked(self):
-
-        self.parent.sub_btt.setEnabled(True)
-        self.parent.add_btt.setEnabled(True)
         self.provid_clt = self.currentItem()
-        self.parent.table.refresh_(
-            provid_clt_id=self.provid_clt.provid_clt_id)
+        provid_clt_id = self.provid_clt.provid_clt_id
+        if isinstance(provid_clt_id, int):
+            self.parent.sub_btt.setEnabled(True)
+            self.parent.add_btt.setEnabled(True)
+        else:
+            self.parent.sub_btt.setEnabled(False)
+            self.parent.add_btt.setEnabled(False)
+        self.parent.table.refresh_(provid_clt_id=provid_clt_id)
 
 
 class ProviderOrClientQListWidgetItem(QListWidgetItem):
