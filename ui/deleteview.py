@@ -19,6 +19,7 @@ class DeleteViewWidget(QDialog, FWidget):
         self.title = FPageTitle(u"Voulez vous vraiment le supprimer?")
         self.obj = obj
         self.table_p = table_p
+        self.provid_clt_id = table_p.provid_clt_id
         self.parent = parent
         # self.title.setAlignment(Qt.AlignHCenter)
         title_hbox = QHBoxLayout()
@@ -52,5 +53,5 @@ class DeleteViewWidget(QDialog, FWidget):
     def delete(self):
         self.obj.deletes_data()
         self.cancel()
-        self.table_p.refresh_()
+        self.table_p.refresh_(provid_clt_id=self.provid_clt_id)
         self.parent.Notify("le rapport à été bien supprimé", "error")
