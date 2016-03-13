@@ -12,7 +12,7 @@ from Common.ui.common import FMainWindow
 from Common.models import Owner
 from configuration import Config
 
-from ui.menutoolbar import MenuToolBar
+# from ui.menutoolbar import MenuToolBar
 from ui.menubar import MenuBar
 from ui.statusbar import GStatusBar
 from ui.dashboard import DashbordViewWidget

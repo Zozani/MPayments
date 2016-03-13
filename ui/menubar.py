@@ -12,7 +12,7 @@ from configuration import Config
 from Common.exports import export_database_as_file
 from Common.ui.common import FWidget
 from Common.ui.cmenubar import FMenuBar
-from ui.payment import PaymentViewWidget
+from ui.statistics import StatisticsViewWidget
 from ui.debt_manager import DebtsViewWidget
 
 
@@ -26,6 +26,9 @@ class MenuBar(FMenuBar, FWidget):
 
         menu = [{"name": u"Versements", "icon": 'logo', "admin":
                  False, "shortcut": "Ctrl+V", "goto": DebtsViewWidget},
+                {"name": u"Statistiques", "icon": 'state', "admin":
+                 False, "shortcut": "Ctrl+S", "goto": StatisticsViewWidget},
+
                 ]
 
         # Menu aller à

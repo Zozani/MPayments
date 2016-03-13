@@ -58,7 +58,7 @@ class DebtsViewWidget(FWidget):
         self.table = RapportTableWidget(parent=self)
         # self.table = DebtsTableWidget(parent=self)
         self.button = Button(u"Ok")
-        self.button.clicked.connect(self.table.refresh_)
+        self.button.clicked.connect(self.refresh_period)
 
         self.btt_export = BttExportXLS(u"Exporter")
         self.btt_export.clicked.connect(self.export_xls)
@@ -76,11 +76,11 @@ class DebtsViewWidget(FWidget):
         self.add_prov_btt.setMaximumHeight(60)
         self.add_prov_btt.clicked.connect(self.add_prov_or_clt)
         editbox = QGridLayout()
-        editbox.addWidget(FormLabel(u"Date debut"), 0, 1)
-        editbox.addWidget(self.on_date, 0, 2)
-        editbox.addWidget(FormLabel(u"Date fin"), 1, 1)
-        editbox.addWidget(self.end_date, 1, 2)
-        editbox.addWidget(self.button, 1, 3)
+        # editbox.addWidget(FormLabel(u"Date debut"), 0, 1)
+        # editbox.addWidget(self.on_date, 0, 2)
+        # editbox.addWidget(FormLabel(u"Date fin"), 1, 1)
+        # editbox.addWidget(self.end_date, 1, 2)
+        # editbox.addWidget(self.button, 1, 3)
         editbox.addWidget(self.sub_btt, 1, 5)
         editbox.addWidget(self.add_btt, 1, 6)
         editbox.addWidget(self.btt_export, 1, 7)
@@ -113,6 +113,9 @@ class DebtsViewWidget(FWidget):
         hbox.addWidget(splitter)
         self.setLayout(hbox)
 
+    def refresh_period(self):
+        self.table.refresh_()
+
     def search(self):
         self.table_provid_clt.refresh_(self.search_field.text())
 
@@ -129,15 +132,17 @@ class DebtsViewWidget(FWidget):
             "extend_rows": [(1, self.table.label_mov_tt),
                             (2, self.table.totals_debit),
                             (3, self.table.totals_credit), ],
-            "footers": [
-                ("C", "E", "Solde au {} = {} {}".format(self.now, self.table.balance_tt, Config.DEVISE)), ],
+            "footers": [("D", "E", "Solde au {} = {} {}".format(self.now, self.table.balance_tt, Config.DEVISE)), ],
             'sheet': self.title,
             # 'title': self.title,
             'widths': self.table.stretch_columns,
             'exclude_row': len(self.table.data) - 1,
+            'others': [("A7", "C7", "Compte : {}".format(self.table.provider_clt)), ],
             "date": "Du {} au {}".format(
-                date_to_datetime(self.on_date.text()).strftime(u'%d/%m/%Y'),
-                date_to_datetime(self.end_date.text()).strftime(u'%d/%m/%Y'))
+                date_to_datetime(
+                    self.on_date.text()).strftime(Config.DATEFORMAT),
+                date_to_datetime(
+                    self.end_date.text()).strftime(Config.DATEFORMAT))
         }
         export_dynamic_data(dict_data)
 
@@ -198,14 +203,14 @@ class ProviderOrClientTableWidget(QListWidget):
 
     def handleClicked(self):
         self.provid_clt = self.currentItem()
-        provid_clt_id = self.provid_clt.provid_clt_id
-        if isinstance(provid_clt_id, int):
+        self.provid_clt_id = self.provid_clt.provid_clt_id
+        if isinstance(self.provid_clt_id, int):
             self.parent.sub_btt.setEnabled(True)
             self.parent.add_btt.setEnabled(True)
         else:
             self.parent.sub_btt.setEnabled(False)
             self.parent.add_btt.setEnabled(False)
-        self.parent.table.refresh_(provid_clt_id=provid_clt_id)
+        self.parent.table.refresh_(provid_clt_id=self.provid_clt_id)
 
 
 class ProviderOrClientQListWidgetItem(QListWidgetItem):
@@ -267,11 +272,18 @@ class RapportTableWidget(FTableWidget):
 
     def refresh_(self, provid_clt_id=None, search=None):
         """ """
+
+        self.totals_debit = 0
+        self.totals_credit = 0
+        self.balance_tt = 0
+
         l_date = [date_to_datetime(self.parent.on_date.text()),
                   date_to_datetime(self.parent.end_date.text())]
         self._reset()
         self.set_data_for(l_date, provid_clt_id=provid_clt_id, search=search)
         self.refresh()
+        self.parent.label_balance.setText(
+            self.parent.display_remaining(formatted_number(self.balance_tt)))
         self.hideColumn(len(self.hheaders) - 1)
 
     def set_data_for(self, date_, provid_clt_id=None, search=None):
@@ -284,6 +296,7 @@ class RapportTableWidget(FTableWidget):
             self.provider_clt = ProviderOrClient.get(id=provid_clt_id)
             qs = qs.select().where(Payment.provider_clt == self.provider_clt)
         else:
+            self.provider_clt = "Tous"
             for prov in ProviderOrClient.select().where(
                     ProviderOrClient.type_ == ProviderOrClient.CLT):
                 self.remaining += prov.last_remaining()
@@ -344,5 +357,3 @@ class RapportTableWidget(FTableWidget):
             nb_rows, 2, TotalsWidget(formatted_number(self.totals_debit)))
         self.setItem(
             nb_rows, 3, TotalsWidget(formatted_number(self.totals_credit)))
-        self.parent.label_balance.setText(
-            self.parent.display_remaining(formatted_number(self.balance_tt)))

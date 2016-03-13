@@ -12,8 +12,7 @@ from Common.ui.common import FWidget
 
 from configuration import Config
 
-# from ui.dashboard import DashbordViewWidget
-from ui.payment import PaymentViewWidget
+from ui.statistics import StatisticsViewWidget
 from ui.debt_manager import DebtsViewWidget
 
 
@@ -39,9 +38,9 @@ class MenuToolBar(QToolBar, FWidget):
         self.addAction(
             QIcon(u"{}exit.png".format(Config.img_cmedia)), u"Quiter", self.goto_exit)
         menu = [{"name": u"Versement", "admin": True,
-                 "icon": 'logo', "goto": PaymentViewWidget},
+                 "icon": 'state', "goto": StatisticsViewWidget},
                 {"name": u"Dettes", "admin": True,
-                 "icon": 'debt', "goto": DebtsViewWidget},
+                 "icon": 'logo', "goto": DebtsViewWidget},
                 ]
 
         for m in menu:
