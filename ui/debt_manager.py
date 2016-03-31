@@ -129,14 +129,15 @@ class DebtsViewWidget(FWidget):
             'file_name': "versements.xlsx",
             'headers': self.table.hheaders[:-1],
             'data': self.table.data,
-            "extend_rows": [(1, self.table.label_mov_tt),
-                            (2, self.table.totals_debit),
-                            (3, self.table.totals_credit), ],
-            "footers": [("D", "E", "Solde au {} = {} {}".format(self.now, self.table.balance_tt, Config.DEVISE)), ],
+            "extend_rows": [(1, formatted_number(self.table.label_mov_tt)),
+                            (2, formatted_number(self.table.totals_debit)),
+                            (3, formatted_number(self.table.totals_credit)), ],
+            "footers": [("D", "E", "Solde au {} = {} {}".format(self.now, formatted_number(self.table.balance_tt), Config.DEVISE)), ],
             'sheet': self.title,
             # 'title': self.title,
             'widths': self.table.stretch_columns,
-            'exclude_row': len(self.table.data) - 1,
+            'format_money': ["C:C", "D:D", "E:E", ],
+            # 'exclude_row': len(self.table.data) - 1,
             'others': [("A7", "C7", "Compte : {}".format(self.table.provider_clt)), ],
             "date": "Du {} au {}".format(
                 date_to_datetime(
@@ -303,7 +304,7 @@ class RapportTableWidget(FTableWidget):
         self.parent.label_balance.setText(
             self.parent.display_remaining(formatted_number(self.remaining)))
 
-        self.data = [(show_date(pay.date), pay.libelle, pay.debit, pay.credit,
+        self.data = [(pay.date, pay.libelle, pay.debit, pay.credit,
                       pay.balance, pay.id) for pay in qs.iterator()]
 
     def popup(self, pos):
@@ -349,7 +350,7 @@ class RapportTableWidget(FTableWidget):
         # self.balance_tt = last_balance
         # if isinstance(self.provid_clt_id, str) or not self.provid_clt_id:
         #     self.balance_tt = self.totals_debit - self.totals_credit
-        self.balance_tt = self.totals_debit - self.totals_credit
+        self.balance_tt = self.totals_credit - self.totals_debit
 
         self.label_mov_tt = u"Totals mouvements: "
         self.setItem(nb_rows, 1, TotalsWidget(self.label_mov_tt))

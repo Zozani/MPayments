@@ -105,7 +105,8 @@ class StatisticsViewWidget(FWidget, FPeriodHolder):
             'sheet': self.title,
             # 'title': self.title,
             'widths': self.table.stretch_columns,
-            'exclude_row': len(self.table.data) - 1,
+            'format_money': ["C:C", "D:D", "E:E", ],
+            # 'exclude_row': len(self.table.data) - 1,
             'others': [("A7", "C7", "Compte : {}".format(self.table.provider_clt)), ],
             "date": "Du {} au {}".format(
                 date_to_datetime(
@@ -169,7 +170,7 @@ class RapportTableWidget(FTableWidget):
         else:
             self.provider_clt = "Tous"
 
-        self.data = [(show_date(pay.date), pay.libelle, pay.debit, pay.credit,
+        self.data = [(pay.date, pay.libelle, pay.debit, pay.credit,
                       pay.balance, pay.id) for pay in qs.filter(Payment.date > date_[
                           0], Payment.date < date_[1]).order_by(Payment.date.asc())]
 
@@ -210,8 +211,8 @@ class RapportTableWidget(FTableWidget):
             self.totals_credit += mtt_credit
             cp += 1
 
-        self.balance_tt = last_balance
-        # self.balance_tt = self.totals_debit - self.totals_credit
+        # self.balance_tt = last_balance
+        self.balance_tt = self.totals_credit - self.totals_debit
 
         self.label_mov_tt = u"Totals mouvements: "
         self.setItem(nb_rows, 1, TotalsWidget(self.label_mov_tt))

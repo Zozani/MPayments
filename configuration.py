@@ -59,7 +59,7 @@ class Config(CConstants):
     NAME_MAIN = "main.py"
 
     pdf_source = "pdf_source.pdf"
-    APP_NAME = "CMPayments"
+    APP_NAME = "MPayments"
 
     APP_VERSION = u"2.0"
     APP_DATE = u"02/2016"
@@ -68,4 +68,4 @@ class Config(CConstants):
     APP_LOGO_ICO = os.path.join(img_media, "logo.ico")
 
     DEVISE = "$"
-    # DEVISE = "FCFA"
+    NUMBER_FORMAT = "$#,##0"
