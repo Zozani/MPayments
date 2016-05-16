@@ -8,14 +8,14 @@ from __future__ import (
 
 from datetime import datetime, date
 
-from PyQt4.QtGui import (QVBoxLayout, QGridLayout, QIcon, QMenu)
+from PyQt4.QtGui import (QVBoxLayout, QGridLayout,  QFormLayout, QIcon, QMenu)
 from PyQt4.QtCore import Qt, QDate
 
 from configuration import Config
 from Common.ui.common import (FormLabel, FWidget, FPeriodHolder, FPageTitle,
                               Button, BttExportXLS, FormatDate, ExtendedComboBox)
 from Common.ui.table import FTableWidget, TotalsWidget
-from Common.ui.util import formatted_number, is_float, show_date, date_to_datetime
+from Common.ui.util import device_amount, is_float, show_date, date_to_datetime
 from models import Payment, ProviderOrClient
 from ui.payment_edit_add import EditOrAddPaymentrDialog
 
@@ -38,11 +38,11 @@ class StatisticsViewWidget(FWidget, FPeriodHolder):
 
         self.title = u"Movements"
 
-        self.on_date = FormatDate(
+        self.on_date_field = FormatDate(
             QDate(date.today().year, date.today().month, 1))
-        self.end_date = FormatDate(QDate.currentDate())
-        self.now = datetime.now().strftime("%x")
-        self.soldeField = FormLabel("0 {}".format(Config.DEVISE))
+        self.end_date_field = FormatDate(QDate.currentDate())
+        self.now = datetime.now().strftime(Config.DATEFORMAT)
+        self.soldeField = FormLabel(device_amount(0))
         balanceBox = QGridLayout()
         balanceBox.addWidget(self.soldeField, 0, 3)
         balanceBox.setColumnStretch(0, 1)
@@ -61,21 +61,23 @@ class StatisticsViewWidget(FWidget, FPeriodHolder):
         self.button = Button(u"Ok")
         self.button.clicked.connect(self.refresh_prov_clt)
 
+        formbox_period = QFormLayout()
         self.btt_export = BttExportXLS(u"Exporter")
         self.btt_export.clicked.connect(self.export_xls)
 
         editbox = QGridLayout()
         editbox.addWidget(FormLabel(u"Date debut"), 0, 1)
-        editbox.addWidget(self.on_date, 0, 2)
+        editbox.addWidget(self.on_date_field, 0, 2)
         editbox.addWidget(FormLabel(u"Date fin"), 1, 1)
-        editbox.addWidget(self.end_date, 1, 2)
+        editbox.addWidget(self.end_date_field, 1, 2)
         editbox.addWidget(self.name_client_field, 0, 3)
         editbox.addWidget(self.button, 1, 3)
-
         editbox.addWidget(self.btt_export, 1, 7)
         editbox.setColumnStretch(4, 2)
+
         vbox = QVBoxLayout()
         vbox.addWidget(FPageTitle(self.title))
+        vbox.addLayout(formbox_period)
         vbox.addLayout(editbox)
         vbox.addWidget(self.table)
         vbox.addLayout(balanceBox)
@@ -100,25 +102,21 @@ class StatisticsViewWidget(FWidget, FPeriodHolder):
             "extend_rows": [(1, self.table.label_mov_tt),
                             (2, self.table.totals_debit),
                             (3, self.table.totals_credit), ],
-            "footers": [
-                ("C", "E", "Solde au {} = {}".format(self.now, self.table.balance_tt)), ],
+            "footers": [("C", "E", "Solde du {} au {} = {}".format(
+                self.table.on_date, self.table.end_date, device_amount(self.table.balance_tt))), ],
             'sheet': self.title,
             # 'title': self.title,
             'widths': self.table.stretch_columns,
             'format_money': ["C:C", "D:D", "E:E", ],
             # 'exclude_row': len(self.table.data) - 1,
             'others': [("A7", "C7", "Compte : {}".format(self.table.provider_clt)), ],
-            "date": "Du {} au {}".format(
-                date_to_datetime(
-                    self.on_date.text()).strftime(Config.DATEFORMAT),
-                date_to_datetime(
-                    self.end_date.text()).strftime(Config.DATEFORMAT))
+            # "date": "Du {} au {}".format(self.table.on_date, self.table.end_date)
         }
         export_dynamic_data(dict_data)
 
-    def display_remaining(self, text):
-        return """ <h2>Solde au {} : <b>{}</b> {} </h2>
-               """.format(self.now,  text, Config.DEVISE)
+    def display_remaining(self, amount_text):
+        return """ <h2>Solde du {}: <b>{}</b></h2>
+               """.format(self.now, amount_text)
 
 
 class RapportTableWidget(FTableWidget):
@@ -148,15 +146,16 @@ class RapportTableWidget(FTableWidget):
         self.totals_debit = 0
         self.totals_credit = 0
         self.balance_tt = 0
+        self.on_date = date_to_datetime(self.parent.on_date_field.text())
+        self.end_date = date_to_datetime(self.parent.end_date_field.text())
 
-        l_date = [date_to_datetime(self.parent.on_date.text()),
-                  date_to_datetime(self.parent.end_date.text())]
+        l_date = [self.on_date, self.end_date]
         self._reset()
         self.set_data_for(l_date, provid_clt_id=provid_clt_id, search=search)
         self.refresh()
 
         self.parent.soldeField.setText(
-            self.parent.display_remaining(formatted_number(self.balance_tt)))
+            self.parent.display_remaining(device_amount(self.balance_tt)))
 
         self.hideColumn(len(self.hheaders) - 1)
 
@@ -217,6 +216,6 @@ class RapportTableWidget(FTableWidget):
         self.label_mov_tt = u"Totals mouvements: "
         self.setItem(nb_rows, 1, TotalsWidget(self.label_mov_tt))
         self.setItem(
-            nb_rows, 2, TotalsWidget(formatted_number(self.totals_debit)))
+            nb_rows, 2, TotalsWidget(device_amount(self.totals_debit)))
         self.setItem(
-            nb_rows, 3, TotalsWidget(formatted_number(self.totals_credit)))
+            nb_rows, 3, TotalsWidget(device_amount(self.totals_credit)))

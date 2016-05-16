@@ -67,5 +67,5 @@ class Config(CConstants):
     APP_LOGO = os.path.join(img_media, "logo.png")
     APP_LOGO_ICO = os.path.join(img_media, "logo.ico")
 
-    DEVISE = "$"
-    NUMBER_FORMAT = "$#,##0"
+    DEVISE_M = "USD"
+    DEVISE_M = "XOF"

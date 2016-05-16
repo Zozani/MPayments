@@ -15,7 +15,6 @@ from configuration import Config
 # from ui.menutoolbar import MenuToolBar
 from ui.menubar import MenuBar
 from ui.statusbar import GStatusBar
-from ui.dashboard import DashbordViewWidget
 from ui.debt_manager import DebtsViewWidget
 
 
@@ -34,7 +33,6 @@ class MainWindow(FMainWindow):
         self.statusbar = GStatusBar(self)
         self.setStatusBar(self.statusbar)
 
-        # self.page = DashbordViewWidget
         self.page = DebtsViewWidget
 
         self.change_context(self.page)

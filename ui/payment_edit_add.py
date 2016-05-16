@@ -14,7 +14,7 @@ from configuration import Config
 
 from Common.ui.util import check_is_empty, field_error, date_to_datetime
 from Common.ui.common import (FWidget, FPageTitle, Button_save, FormLabel,
-                              FLabel, LineEdit, IntLineEdit, Warning_btt,
+                              FLabel, LineEdit, FloatLineEdit, Warning_btt,
                               FormatDate)
 from Common import peewee
 from models import Payment
@@ -59,7 +59,7 @@ class EditOrAddPaymentrDialog(QDialog, FWidget):
             self.payment = Payment()
         self.setWindowTitle(self.title)
 
-        self.amount_field = IntLineEdit(unicode(amount).replace(".", ","))
+        self.amount_field = FloatLineEdit(unicode(amount).replace(".", ","))
         self.libelle_field = QTextEdit(self.payment.libelle)
 
         vbox = QVBoxLayout()

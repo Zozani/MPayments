@@ -6,7 +6,7 @@
 
   !define MUI_PRODUCT "MPayments"
   !define MUI_FILE "main"
-  !define MUI_VERSION "9.1 D"
+  !define MUI_VERSION "10.0 F"
   !define MUI_BRANDINGTEXT "${MUI_PRODUCT} ${MUI_VERSION}"
   !define IMAGES "images"
   !define CIMAGES "cimages"
@@ -55,8 +55,7 @@ Section "install"
 
   ; List of files/folders to copy
   File /r dist\*.*
-  File /r *.dll
-  File /r *.manifest
+  File ressources\*.dll
   File /r ${IMAGES}
   File /r ${CIMAGES_PATH}
 
@@ -90,7 +89,6 @@ Section "Uninstall"
 # now delete installed file
 delete $INSTDIR\*.exe
 delete $INSTDIR\*.dll
-delete $INSTDIR\*.manifest
 delete $INSTDIR\*.lib
 delete $INSTDIR\*.zip
 delete $INSTDIR\*.pdf

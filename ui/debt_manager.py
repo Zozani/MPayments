@@ -5,7 +5,7 @@
 
 from PyQt4.QtGui import (QSplitter, QHBoxLayout, QVBoxLayout, QPushButton,
                          QPixmap, QFont, QListWidget, QMenu, QListWidgetItem,
-                         QIcon, QFormLayout, QGridLayout)
+                         QIcon, QGridLayout)
 
 from datetime import datetime, date
 from PyQt4.QtCore import Qt, SIGNAL, SLOT, QSize, QDate
@@ -16,7 +16,7 @@ from models import ProviderOrClient, Payment
 from Common.ui.common import (BttExportXLS, FWidget, FBoxTitle, Button,
                               LineEdit, FLabel, FormatDate, FormLabel)
 from Common.ui.table import FTableWidget, TotalsWidget
-from Common.ui.util import formatted_number, show_date, is_float, date_to_datetime
+from Common.ui.util import device_amount, show_date, is_float
 
 from ui.payment_edit_add import EditOrAddPaymentrDialog
 from GCommon.ui.provider_client_edit_add import EditOrAddClientOrProviderDialog
@@ -46,17 +46,10 @@ class DebtsViewWidget(FWidget):
         self.title = u"Movements"
 
         hbox = QHBoxLayout(self)
-        # self.remaining_box = FLabel()
-        # self.remaining_box.setMaximumHeight(40)
+        self.now = datetime.now().strftime(Config.DATEFORMAT)
 
-        self.on_date = FormatDate(
-            QDate(date.today().year, date.today().month, 1))
-        self.end_date = FormatDate(QDate.currentDate())
-        self.now = datetime.now().strftime("%x")
-        # self.soldeField = FormLabel("0")
         self.label_balance = FormLabel(u"Solde au {} ".format(self.now))
         self.table = RapportTableWidget(parent=self)
-        # self.table = DebtsTableWidget(parent=self)
         self.button = Button(u"Ok")
         self.button.clicked.connect(self.refresh_period)
 
@@ -75,12 +68,8 @@ class DebtsViewWidget(FWidget):
         self.add_prov_btt = Button("+ client")
         self.add_prov_btt.setMaximumHeight(60)
         self.add_prov_btt.clicked.connect(self.add_prov_or_clt)
+
         editbox = QGridLayout()
-        # editbox.addWidget(FormLabel(u"Date debut"), 0, 1)
-        # editbox.addWidget(self.on_date, 0, 2)
-        # editbox.addWidget(FormLabel(u"Date fin"), 1, 1)
-        # editbox.addWidget(self.end_date, 1, 2)
-        # editbox.addWidget(self.button, 1, 3)
         editbox.addWidget(self.sub_btt, 1, 5)
         editbox.addWidget(self.add_btt, 1, 6)
         editbox.addWidget(self.btt_export, 1, 7)
@@ -94,21 +83,21 @@ class DebtsViewWidget(FWidget):
         self.search_field.setMaximumHeight(40)
         splitter = QSplitter(Qt.Horizontal)
 
-        self.splitter_right = QSplitter(Qt.Horizontal)
-        self.splitter_right.setLayout(editbox)
+        self.splt_add = QSplitter(Qt.Horizontal)
+        self.splt_add.setLayout(editbox)
 
         self.splitter_left = QSplitter(Qt.Vertical)
         self.splitter_left.addWidget(self.search_field)
         self.splitter_left.addWidget(self.table_provid_clt)
         self.splitter_left.addWidget(self.add_prov_btt)
 
-        splt_clt = QSplitter(Qt.Vertical)
-        splt_clt.addWidget(self.splitter_right)
-        splt_clt.addWidget(self.table)
-        splt_clt.addWidget(self.label_balance)
-        splt_clt.resize(900, 1000)
+        self.splt_clt = QSplitter(Qt.Vertical)
+        self.splt_clt.addWidget(self.splt_add)
+        self.splt_clt.addWidget(self.table)
+        self.splt_clt.addWidget(self.label_balance)
+        self.splt_clt.resize(900, 1000)
         splitter.addWidget(self.splitter_left)
-        splitter.addWidget(splt_clt)
+        splitter.addWidget(self.splt_clt)
 
         hbox.addWidget(splitter)
         self.setLayout(hbox)
@@ -129,21 +118,16 @@ class DebtsViewWidget(FWidget):
             'file_name': "versements.xlsx",
             'headers': self.table.hheaders[:-1],
             'data': self.table.data,
-            "extend_rows": [(1, formatted_number(self.table.label_mov_tt)),
-                            (2, formatted_number(self.table.totals_debit)),
-                            (3, formatted_number(self.table.totals_credit)), ],
-            "footers": [("D", "E", "Solde au {} = {} {}".format(self.now, formatted_number(self.table.balance_tt), Config.DEVISE)), ],
+            "extend_rows": [(1, self.table.label_mov_tt),
+                            (2, self.table.totals_debit),
+                            (3, self.table.totals_credit), ],
             'sheet': self.title,
             # 'title': self.title,
             'widths': self.table.stretch_columns,
             'format_money': ["C:C", "D:D", "E:E", ],
-            # 'exclude_row': len(self.table.data) - 1,
-            'others': [("A7", "C7", "Compte : {}".format(self.table.provider_clt)), ],
-            "date": "Du {} au {}".format(
-                date_to_datetime(
-                    self.on_date.text()).strftime(Config.DATEFORMAT),
-                date_to_datetime(
-                    self.end_date.text()).strftime(Config.DATEFORMAT))
+            'exclude_row': len(self.table.data) - 1,
+            'others': [("A7", "C7", "Compte : {}".format(self.table.provider_clt)),
+                       ("A8", "B8", "Solde au {}: {}".format(self.now, device_amount(self.table.balance_tt))), ],
         }
         export_dynamic_data(dict_data)
 
@@ -155,9 +139,9 @@ class DebtsViewWidget(FWidget):
         self.open_dialog(EditOrAddPaymentrDialog, modal=True,
                          payment=None, type_=Payment.DEBIT, table_p=self.table)
 
-    def display_remaining(self, text):
-        return """ <h2>Solde au {} : <b>{}</b> {} </h2>
-               """.format(self.now,  text, Config.DEVISE)
+    def display_remaining(self, amount_text):
+        return """ <h2>Solde du {}: <b>{}</b></h2>
+               """.format(self.now, amount_text)
 
 
 class ProviderOrClientTableWidget(QListWidget):
@@ -277,17 +261,19 @@ class RapportTableWidget(FTableWidget):
         self.totals_debit = 0
         self.totals_credit = 0
         self.balance_tt = 0
+        # self.on_date = date_to_datetime(self.parent.on_date_field.text())
+        # self.end_date = date_to_datetime(self.parent.end_date_field.text())
 
-        l_date = [date_to_datetime(self.parent.on_date.text()),
-                  date_to_datetime(self.parent.end_date.text())]
+        # l_date = [self.on_date, self.end_date]
         self._reset()
-        self.set_data_for(l_date, provid_clt_id=provid_clt_id, search=search)
+        self.set_data_for(provid_clt_id=provid_clt_id, search=search)
         self.refresh()
+
         self.parent.label_balance.setText(
-            self.parent.display_remaining(formatted_number(self.balance_tt)))
+            self.parent.display_remaining(device_amount(self.balance_tt)))
         self.hideColumn(len(self.hheaders) - 1)
 
-    def set_data_for(self, date_, provid_clt_id=None, search=None):
+    def set_data_for(self, provid_clt_id=None, search=None):
         self.provid_clt_id = provid_clt_id
         qs = Payment.select().where(
             Payment.status == False).order_by(Payment.date.asc())
@@ -302,7 +288,7 @@ class RapportTableWidget(FTableWidget):
                     ProviderOrClient.type_ == ProviderOrClient.CLT):
                 self.remaining += prov.last_remaining()
         self.parent.label_balance.setText(
-            self.parent.display_remaining(formatted_number(self.remaining)))
+            self.parent.display_remaining(device_amount(self.remaining)))
 
         self.data = [(pay.date, pay.libelle, pay.debit, pay.credit,
                       pay.balance, pay.id) for pay in qs.iterator()]
@@ -355,6 +341,6 @@ class RapportTableWidget(FTableWidget):
         self.label_mov_tt = u"Totals mouvements: "
         self.setItem(nb_rows, 1, TotalsWidget(self.label_mov_tt))
         self.setItem(
-            nb_rows, 2, TotalsWidget(formatted_number(self.totals_debit)))
+            nb_rows, 2, TotalsWidget(device_amount(self.totals_debit)))
         self.setItem(
-            nb_rows, 3, TotalsWidget(formatted_number(self.totals_credit)))
+            nb_rows, 3, TotalsWidget(device_amount(self.totals_credit)))
