@@ -6,7 +6,7 @@
 
   !define MUI_PRODUCT "MPayments"
   !define MUI_FILE "main"
-  !define MUI_VERSION "10.0 F"
+  !define MUI_VERSION "11.0 F"
   !define MUI_BRANDINGTEXT "${MUI_PRODUCT} ${MUI_VERSION}"
   !define IMAGES "images"
   !define CIMAGES "cimages"

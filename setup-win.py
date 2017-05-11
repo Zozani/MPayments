@@ -99,7 +99,7 @@ main_app = Target(
     # Icon resources:[(resource_id, path to .ico file), ...]
     # icon_resources=[(1, r"main_app.ico")]
 
-    other_resources=[(RT_MANIFEST, 1, (manifest_template % dict(prog="mmain", level="asInvoker")).encode("utf-8")),
+    other_resources=[(RT_MANIFEST, 1, (manifest_template % dict(prog=Config.NAME_MAIN, level="asInvoker")).encode("utf-8")),
                      # for bitmap resources, the first 14 bytes must be skipped when reading the file:
                      #                    (RT_BITMAP, 1, open("bitmap.bmp", "rb").read()[14:]),
                      ]

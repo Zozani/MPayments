@@ -7,7 +7,7 @@ from __future__ import (unicode_literals, absolute_import, division,
 import os
 # from static import Constants
 from Common.cstatic import CConstants
-from Common import peewee
+import peewee
 
 ROOT_DIR = os.path.dirname(os.path.abspath('__file__'))
 

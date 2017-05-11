@@ -10,7 +10,7 @@ from PyQt4.QtGui import (QSplitter, QHBoxLayout, QVBoxLayout, QPushButton,
 from datetime import datetime, date
 from PyQt4.QtCore import Qt, SIGNAL, SLOT, QSize, QDate
 
-from Common.peewee import fn
+from peewee import fn
 from models import ProviderOrClient, Payment
 
 from Common.ui.common import (BttExportXLS, FWidget, FBoxTitle, Button,

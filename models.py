@@ -8,8 +8,8 @@ from __future__ import (
 
 from datetime import datetime
 
-from Common.peewee import (DateTimeField, CharField, IntegerField, FloatField, BooleanField,
-                           ForeignKeyField, TextField)
+from peewee import (DateTimeField, CharField, IntegerField, FloatField, BooleanField,
+                    ForeignKeyField, TextField)
 from Common.models import (BaseModel, SettingsAdmin, Version, FileJoin,
                            Organization, Owner)
 

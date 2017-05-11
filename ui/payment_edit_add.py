@@ -16,7 +16,7 @@ from Common.ui.util import check_is_empty, field_error, date_to_datetime
 from Common.ui.common import (FWidget, FPageTitle, Button_save, FormLabel,
                               FLabel, LineEdit, FloatLineEdit, Warning_btt,
                               FormatDate)
-from Common import peewee
+import peewee
 from models import Payment
 
 
