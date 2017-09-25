@@ -11,7 +11,6 @@ sys.path.append(os.path.abspath('../'))
 from configuration import Config
 
 from distutils.core import setup
-import py2exe
 
 
 class Target(object):

@@ -9,13 +9,12 @@ import os
 import sys
 sys.path.append(os.path.abspath('../'))
 
-
 from Common.fixture import AdminFixture
 
 
-class fixt_init(AdminFixture):
+class FixtInit(AdminFixture):
 
-    """docstring for fixt_init"""
+    """docstring for FixtInit"""
 
     def __init__(self):
         super(AdminFixture, self).__init__()

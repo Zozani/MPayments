@@ -7,7 +7,7 @@ from __future__ import (unicode_literals, absolute_import, division,
 import os
 # from static import Constants
 from Common.cstatic import CConstants
-import peewee
+from Common.models import Organization
 
 ROOT_DIR = os.path.dirname(os.path.abspath('__file__'))
 
@@ -17,32 +17,13 @@ class Config(CConstants):
     """ docstring for Config
                             """
 
-    DATEFORMAT = u'%d/%m/%Y'
+    DATEFORMAT = u'%d-%m-%Y'
 
     def __init__(self):
-        Constants.__init__(self)
+        CConstants.__init__(self)
 
     # ------------------------- Organisation --------------------------#
 
-    from Common.models import Organization, Version
-
-    try:
-        DB_VERS = Version().get(Version.id == 1)
-    except Exception as e:
-        print(e)
-        DB_VERS = 1
-    try:
-        sttg = Organization().get(Organization.id == 1)
-        # LOGIN = sttg.login
-        NAME_ORGA = sttg.name_orga
-        TEL_ORGA = sttg.phone
-        ADRESS_ORGA = sttg.adress_org
-        BP = sttg.bp
-        EMAIL_ORGA = sttg.email_org
-        # DEBUG = True
-    except Exception as e:
-        print(e)
-    # DEBUG = True
     DEBUG = False
 
     # des_image_record = "static/img_prod"
@@ -61,7 +42,7 @@ class Config(CConstants):
     pdf_source = "pdf_source.pdf"
     APP_NAME = "MPayments"
 
-    APP_VERSION = u"2.0"
+    APP_VERSION = u"1.0"
     APP_DATE = u"02/2016"
     img_media = os.path.join(os.path.join(ROOT_DIR, "static"), "images/")
     APP_LOGO = os.path.join(img_media, "logo.png")
@@ -69,3 +50,12 @@ class Config(CConstants):
 
     DEVISE_M = "USD"
     DEVISE_M = "XOF"
+
+    org = Organization.get(id=1)
+
+    NAME_ORGA = org.name_orga
+    CONTACT_ORGA = u"Bamako-Rep. du Mali"
+    TEL_ORGA = org.phone
+    ADRESS_ORGA = org.adress_org
+    BP = org.bp
+    EMAIL_ORGA = org.email_org

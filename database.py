@@ -5,24 +5,17 @@
 from __future__ import (unicode_literals, absolute_import, division,
                         print_function)
 
-from Common.models import (SettingsAdmin, Version,
-                           FileJoin, Organization, Owner)
 from models import (Payment, ProviderOrClient)
 
+from Common.cdatabase import AdminDatabase
 
-def setup(drop_tables=False):
-    """ create tables if not exist """
-    did_create = False
 
-    for model in [Payment, Owner, SettingsAdmin, Organization, Version, FileJoin, ProviderOrClient]:
-        if drop_tables:
-            model.drop_table()
-        if not model.table_exists():
-            model.create_table()
-            did_create = True
+class Setup(AdminDatabase):
 
-    if did_create:
-        from fixture import fixt_init
-        fixt_init().creat_all_or_pass()
+    """docstring for FixtInit"""
 
-setup()
+    def __init__(self):
+        super(AdminDatabase, self).__init__()
+
+        self.LIST_CREAT.append(Payment)
+        self.LIST_CREAT.append(ProviderOrClient)

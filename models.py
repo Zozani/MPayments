@@ -8,10 +8,10 @@ from __future__ import (
 
 from datetime import datetime
 
-from peewee import (DateTimeField, CharField, IntegerField, FloatField, BooleanField,
-                    ForeignKeyField, TextField)
-from Common.models import (BaseModel, SettingsAdmin, Version, FileJoin,
-                           Organization, Owner)
+from peewee import (
+    DateTimeField, CharField, IntegerField, FloatField, BooleanField,
+    ForeignKeyField, TextField)
+from Common.models import BaseModel, FileJoin, Owner
 
 FDATE = u"%c"
 NOW = datetime.now()
@@ -28,28 +28,22 @@ class ProviderOrClient(BaseModel):
     FSEUR = 'Fournisseur'
     TYPES = [CLT, FSEUR]
 
-    name = CharField(verbose_name=("Nom de votre entreprise"))
+    name = CharField(unique=True, verbose_name=("Nom de votre entreprise"))
     address = TextField(
         null=True, verbose_name=("Adresse principale de votre société"))
     phone = IntegerField(
-        unique=True, verbose_name=("Numero de téléphone de votre entreprise"))
+        null=True, verbose_name=("Numero de téléphone de votre entreprise"))
     email = CharField(
         null=True, verbose_name=("Adresse électronique de votre entreprise"))
     legal_infos = TextField(
         null=True, verbose_name=("Informations légales"))
     type_ = CharField(max_length=30, choices=TYPES, default=CLT)
     picture = ForeignKeyField(
-        FileJoin, null=True, related_name='file_joins_pictures', verbose_name=("image de la societe"))
+        FileJoin, null=True, related_name='file_joins_pictures',
+        verbose_name=("image de la societe"))
 
-    def invoices(self):
-        return Invoice.select().where(Invoice.client == self)
-
-    def buys(self):
-        return Buy.select().where(Buy.provd_or_clt == self)
-
-    def invoices_items(self):
-        return Report.select().where(Report.type_ == Report.S,
-                                     Report.invoice.client == self)
+    def payments(self):
+        return Payment.select().where(Payment.provider_clt == self)
 
     def is_indebted(self):
         flag = False
@@ -57,15 +51,16 @@ class ProviderOrClient(BaseModel):
             flag = True
         return flag
 
-    def last_refund(self):
+    def last_payment(self):
         try:
-            return Refund.select().where(Refund.provider_client == self).order_by(
-                Refund.date.desc()).get()
-        except Exception as e:
+            return Payment.select().where(
+                Payment.provider_client == self).order_by(
+                Payment.date.desc()).get()
+        except:
             return None
 
     def last_remaining(self):
-        last_r = self.last_refund()
+        last_r = self.last_payment()
         return last_r.remaining if last_r else 0
 
     def __str__(self):
@@ -121,9 +116,8 @@ class Payment(BaseModel):
         """
         Calcul du balance en stock après une operation."""
         self.owner = Owner.get(Owner.islog == True)
-        print("SAVE BEGIN")
-        previous_balance = float(
-            self.last_balance_payment().balance if self.last_balance_payment() else 0)
+        previous_balance = float(self.last_balance_payment(
+        ).balance if self.last_balance_payment() else 0)
         if self.type_ == self.CREDIT:
             self.balance = previous_balance + float(self.credit)
             self.debit = 0
@@ -145,8 +139,10 @@ class Payment(BaseModel):
 
     def next_rpts(self):
         try:
-            return Payment.select().where(Payment.provider_clt == self.provider_clt,
-                                          Payment.date > self.date, Payment.deleted == False).order_by(Payment.date.asc())
+            return Payment.select().where(
+                Payment.provider_clt == self.provider_clt,
+                Payment.date > self.date,
+                Payment.deleted == False).order_by(Payment.date.asc())
         except Exception as e:
             return None
             print("next_rpts ", e)
@@ -164,8 +160,10 @@ class Payment(BaseModel):
 
     def last_balance_payment(self):
         try:
-            return Payment.select().where(Payment.provider_clt == self.provider_clt,
-                                          Payment.deleted == False, Payment.date < self.date).order_by(Payment.date.desc()).get()
+            return Payment.select().where(
+                Payment.provider_clt == self.provider_clt,
+                Payment.deleted == False,
+                Payment.date < self.date).order_by(Payment.date.desc()).get()
         except Exception as e:
             print("last_balance_payment", e)
             return None

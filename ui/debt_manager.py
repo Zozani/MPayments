@@ -3,23 +3,22 @@
 # maintainer: Fadiga
 
 
-from PyQt4.QtGui import (QSplitter, QHBoxLayout, QVBoxLayout, QPushButton,
-                         QPixmap, QFont, QListWidget, QMenu, QListWidgetItem,
-                         QIcon, QGridLayout)
+from PyQt4.QtGui import (
+    QSplitter, QHBoxLayout, QPixmap, QFont, QListWidget, QListWidgetItem,
+    QIcon, QMenu, QGridLayout)
 
-from datetime import datetime, date
-from PyQt4.QtCore import Qt, SIGNAL, SLOT, QSize, QDate
+from datetime import datetime
+from PyQt4.QtCore import Qt, QSize
 
-from peewee import fn
 from models import ProviderOrClient, Payment
 
-from Common.ui.common import (BttExportXLS, FWidget, FBoxTitle, Button,
-                              LineEdit, FLabel, FormatDate, FormLabel)
+from Common.ui.common import (
+    BttExportXLSX, BttExportPDF, FWidget, Button, LineEdit, FormLabel)
 from Common.ui.table import FTableWidget, TotalsWidget
-from Common.ui.util import device_amount, show_date, is_float
+from Common.ui.util import device_amount, is_float
 
 from ui.payment_edit_add import EditOrAddPaymentrDialog
-from GCommon.ui.provider_client_edit_add import EditOrAddClientOrProviderDialog
+from ui.provider_client_edit_add import EditOrAddClientOrProviderDialog
 
 from configuration import Config
 
@@ -41,47 +40,51 @@ class DebtsViewWidget(FWidget):
                                               *args, **kwargs)
         self.parent = parent
         self.parentWidget().setWindowTitle(
-            Config.NAME_ORGA + u"Gestion des dettes")
+            Config.APP_NAME + u" Gestion des dettes")
 
         self.title = u"Movements"
 
-        hbox = QHBoxLayout(self)
         self.now = datetime.now().strftime(Config.DATEFORMAT)
 
-        self.label_balance = FormLabel(u"Solde au {} ".format(self.now))
+        self.label_balance = FormLabel("")
+        self.label_owner = FormLabel("")
         self.table = RapportTableWidget(parent=self)
         self.button = Button(u"Ok")
         self.button.clicked.connect(self.refresh_period)
 
-        self.btt_export = BttExportXLS(u"Exporter")
-        self.btt_export.clicked.connect(self.export_xls)
+        self.btt_pdf_export = BttExportPDF("")
+        self.btt_pdf_export.clicked.connect(self.export_pdf)
+        self.btt_xlsx_export = BttExportXLSX("")
+        self.btt_xlsx_export.clicked.connect(self.export_xlsx)
         self.add_btt = Button("Créditer")
         self.add_btt.setEnabled(False)
         self.add_btt.clicked.connect(self.add_payment)
-        self.add_btt.setIcon(QIcon(u"{img_media}{img}".format(img_media=Config.img_media,
-                                                              img="in.png")))
+        self.add_btt.setMaximumHeight(60)
+        self.add_btt.setIcon(QIcon(
+            "{img_media}in.png".format(img_media=Config.img_media)))
         self.sub_btt = Button("Débiter")
         self.sub_btt.setEnabled(False)
         self.sub_btt.clicked.connect(self.sub_payment)
-        self.sub_btt.setIcon(QIcon(u"{img_media}{img}".format(img_media=Config.img_media,
-                                                              img="out.png")))
-        self.add_prov_btt = Button("+ client")
+        self.sub_btt.setIcon(QIcon(
+            u"{img_media}out.png".format(img_media=Config.img_media)))
+        self.add_prov_btt = Button("+ Compte")
         self.add_prov_btt.setMaximumHeight(60)
         self.add_prov_btt.clicked.connect(self.add_prov_or_clt)
 
         editbox = QGridLayout()
-        editbox.addWidget(self.sub_btt, 1, 5)
-        editbox.addWidget(self.add_btt, 1, 6)
-        editbox.addWidget(self.btt_export, 1, 7)
-        editbox.setColumnStretch(1, 4)
+        editbox.addWidget(self.label_owner, 0, 0)
+        editbox.setColumnStretch(0, 2)
+        editbox.addWidget(self.sub_btt, 0, 3)
+        editbox.addWidget(self.add_btt, 0, 4)
+        # editbox.addWidget(self.btt_pdf_export, 1, 5)
+        # editbox.addWidget(self.btt_xlsx_export, 1, 6)
 
         self.table_provid_clt = ProviderOrClientTableWidget(parent=self)
 
         self.search_field = LineEdit()
         self.search_field.textChanged.connect(self.search)
-        self.search_field.setPlaceholderText(u"Nom ou  numéro tel")
+        self.search_field.setPlaceholderText(u"Nom de compte")
         self.search_field.setMaximumHeight(40)
-        splitter = QSplitter(Qt.Horizontal)
 
         self.splt_add = QSplitter(Qt.Horizontal)
         self.splt_add.setLayout(editbox)
@@ -95,10 +98,13 @@ class DebtsViewWidget(FWidget):
         self.splt_clt.addWidget(self.splt_add)
         self.splt_clt.addWidget(self.table)
         self.splt_clt.addWidget(self.label_balance)
-        self.splt_clt.resize(900, 1000)
+        # self.splt_clt.resize(900, 1000)
+
+        splitter = QSplitter(Qt.Horizontal)
         splitter.addWidget(self.splitter_left)
         splitter.addWidget(self.splt_clt)
 
+        hbox = QHBoxLayout(self)
         hbox.addWidget(splitter)
         self.setLayout(hbox)
 
@@ -112,35 +118,26 @@ class DebtsViewWidget(FWidget):
         self.parent.open_dialog(EditOrAddClientOrProviderDialog, modal=True,
                                 prov_clt=None, table_p=self.table_provid_clt)
 
-    def export_xls(self):
+    def export_pdf(self):
+        from Common.exports_pdf import export_dynamic_data
+        export_dynamic_data(self.table.dict_data())
+
+    def export_xlsx(self):
         from Common.exports_xlsx import export_dynamic_data
-        dict_data = {
-            'file_name': "versements.xlsx",
-            'headers': self.table.hheaders[:-1],
-            'data': self.table.data,
-            "extend_rows": [(1, self.table.label_mov_tt),
-                            (2, self.table.totals_debit),
-                            (3, self.table.totals_credit), ],
-            'sheet': self.title,
-            # 'title': self.title,
-            'widths': self.table.stretch_columns,
-            'format_money': ["C:C", "D:D", "E:E", ],
-            'exclude_row': len(self.table.data) - 1,
-            'others': [("A7", "C7", "Compte : {}".format(self.table.provider_clt)),
-                       ("A8", "B8", "Solde au {}: {}".format(self.now, device_amount(self.table.balance_tt))), ],
-        }
-        export_dynamic_data(dict_data)
+        export_dynamic_data(self.table.dict_data())
 
     def add_payment(self):
-        self.open_dialog(EditOrAddPaymentrDialog, modal=True,
-                         payment=None, type_=Payment.CREDIT, table_p=self.table)
+        self.open_dialog(
+            EditOrAddPaymentrDialog, modal=True,
+            payment=None, type_=Payment.CREDIT, table_p=self.table)
 
     def sub_payment(self):
-        self.open_dialog(EditOrAddPaymentrDialog, modal=True,
-                         payment=None, type_=Payment.DEBIT, table_p=self.table)
+        self.open_dialog(
+            EditOrAddPaymentrDialog, modal=True,
+            payment=None, type_=Payment.DEBIT, table_p=self.table)
 
-    def display_remaining(self, amount_text):
-        return """ <h2>Solde du {}: <b>{}</b></h2>
+    def display_balance(self, amount_text):
+        return """ <h2>Solde du {} = <b>{}</b></h2>
                """.format(self.now, amount_text)
 
 
@@ -170,10 +167,11 @@ class ProviderOrClientTableWidget(QListWidget):
         action = menu.exec_(self.mapToGlobal(pos))
 
         provid_clt = ProviderOrClient.get(
-            ProviderOrClient.phone == self.item(row).text().split(",")[1])
+            ProviderOrClient.name == self.item(row).text())
         if action == editaction:
-            self.parent.open_dialog(EditOrAddClientOrProviderDialog, modal=True,
-                                    prov_clt=provid_clt, table_p=self)
+            self.parent.open_dialog(
+                EditOrAddClientOrProviderDialog, modal=True,
+                prov_clt=provid_clt, table_p=self)
 
     def refresh_(self, provid_clt=None):
         """ Rafraichir la liste des provid_cltes"""
@@ -209,7 +207,8 @@ class ProviderOrClientQListWidgetItem(QListWidgetItem):
 
         if not isinstance(self.provid_clt, str):
             icon.addPixmap(QPixmap("{}.png".format(
-                Config.img_media + "debt" if self.provid_clt.is_indebted() else Config.img_cmedia + "user_active")),
+                Config.img_media + "debt" if self.provid_clt.is_indebted(
+                ) else Config.img_cmedia + "user_active")),
                 QIcon.Normal, QIcon.Off)
 
         self.setIcon(icon)
@@ -217,8 +216,7 @@ class ProviderOrClientQListWidgetItem(QListWidgetItem):
 
     def init_text(self):
         try:
-            self.setText(
-                "{}, {}".format(self.provid_clt.name, self.provid_clt.phone))
+            self.setText(self.provid_clt.name)
         except AttributeError:
             font = QFont()
             font.setBold(True)
@@ -241,8 +239,7 @@ class RapportTableWidget(FTableWidget):
         FTableWidget.__init__(self, parent=parent, *args, **kwargs)
 
         self.hheaders = [
-            u"Date", u"Libelle opération", u"Débit", u"Crédit", u"Solde", ""]
-
+            "Date", "Libelle opération", "Débit", "Crédit", "Solde", ""]
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.popup)
 
@@ -270,7 +267,7 @@ class RapportTableWidget(FTableWidget):
         self.refresh()
 
         self.parent.label_balance.setText(
-            self.parent.display_remaining(device_amount(self.balance_tt)))
+            self.parent.display_balance(device_amount(self.balance_tt)))
         self.hideColumn(len(self.hheaders) - 1)
 
     def set_data_for(self, provid_clt_id=None, search=None):
@@ -287,19 +284,19 @@ class RapportTableWidget(FTableWidget):
             for prov in ProviderOrClient.select().where(
                     ProviderOrClient.type_ == ProviderOrClient.CLT):
                 self.remaining += prov.last_remaining()
-        self.parent.label_balance.setText(
-            self.parent.display_remaining(device_amount(self.remaining)))
+        self.parent.label_owner.setText(
+            "<h2>Compte : {}</h2>".format(self.provider_clt))
 
-        self.data = [(pay.date, pay.libelle, pay.debit, pay.credit,
+        self.data = [(pay.date.strftime('%x'), pay.libelle, pay.debit, pay.credit,
                       pay.balance, pay.id) for pay in qs.iterator()]
 
     def popup(self, pos):
 
-        # from ui.ligne_edit import EditLigneViewWidget
         from ui.deleteview import DeleteViewWidget
-        from data_helper import check_befor_update_payment
+        # from data_helper import check_befor_update_payment
 
-        if (len(self.data) - 1) < self.selectionModel().selection().indexes()[0].row():
+        if (len(self.data) - 1) < self.selectionModel().selection().indexes(
+        )[0].row():
             return False
         menu = QMenu()
         editaction = menu.addAction("Modifier cette ligne")
@@ -328,7 +325,7 @@ class RapportTableWidget(FTableWidget):
             mtt_debit = is_float(str(self.item(row_num, 2).text()))
             mtt_credit = is_float(str(self.item(row_num, 3).text()))
             # if cp == 0:
-            last_balance = is_float(str(self.item(row_num, 4).text()))
+            # last_balance = is_float(str(self.item(row_num, 4).text()))
             self.totals_debit += mtt_debit
             self.totals_credit += mtt_credit
             cp += 1
@@ -344,3 +341,23 @@ class RapportTableWidget(FTableWidget):
             nb_rows, 2, TotalsWidget(device_amount(self.totals_debit)))
         self.setItem(
             nb_rows, 3, TotalsWidget(device_amount(self.totals_credit)))
+
+    def dict_data(self):
+        title = "Movements"
+        return {
+            'file_name': title,
+            'headers': self.hheaders[:-1],
+            'data': self.data,
+            "extend_rows": [(1, self.label_mov_tt),
+                            (2, self.totals_debit),
+                            (3, self.totals_credit), ],
+            'sheet': title,
+            # 'title': self.title,
+            'widths': self.stretch_columns,
+            'format_money': ["C:C", "D:D", "E:E", ],
+            'exclude_row': len(self.data) - 1,
+            'date': self.parent.now,
+            'others': [("A7", "C7", "Compte : {}".format(self.provider_clt)),
+                       ("A8", "B8", "Solde au {}: {}".format(
+                        self.parent.now, device_amount(self.balance_tt))), ],
+        }
