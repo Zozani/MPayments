@@ -26,7 +26,6 @@ class EditOrAddClientOrProviderDialog(QDialog, FWidget):
     def __init__(self, table_p, parent, prov_clt=None, *args, **kwargs):
         FWidget.__init__(self, parent, *args, **kwargs)
 
-        self.is_phone = False
         self.table_p = table_p
         self.prov_clt = prov_clt
         self.parent = parent
@@ -45,9 +44,12 @@ class EditOrAddClientOrProviderDialog(QDialog, FWidget):
 
         vbox = QVBoxLayout()
         # vbox.addWidget(FPageTitle(u"Utilisateur: %s " % self.prov_clt.name))
-
+        if self.prov_clt.phone:
+            phone = str(self.prov_clt.phone)
+        else:
+            phone = ""
         self.nameField = LineEdit(self.prov_clt.name)
-        self.phone_field = IntLineEdit(str(self.prov_clt.phone))
+        self.phone_field = IntLineEdit(phone)
         # self.phone_field.setInputMask("D9.99.99.99")
         self.legal_infos = LineEdit(self.prov_clt.legal_infos)
         self.address = QTextEdit(self.prov_clt.address)
@@ -55,11 +57,12 @@ class EditOrAddClientOrProviderDialog(QDialog, FWidget):
 
         formbox = QFormLayout()
         formbox.addRow(FormLabel(u"Nom complete : *"), self.nameField)
-        if self.is_phone:
+
+        if not self.new:
             formbox.addRow(FormLabel(u"Tel: *"), self.phone_field)
-        # formbox.addRow(FormLabel(u"E-mail :"), self.email)
-        # formbox.addRow(FormLabel(u"addresse complete :"), self.address)
-        # formbox.addRow(FormLabel(u"Info. legale :"), self.legal_infos)
+            formbox.addRow(FormLabel(u"E-mail :"), self.email)
+            formbox.addRow(FormLabel(u"addresse complete :"), self.address)
+            formbox.addRow(FormLabel(u"Info. legale :"), self.legal_infos)
 
         butt = Button(u"Enregistrer")
         butt.clicked.connect(self.save_edit)
@@ -71,25 +74,21 @@ class EditOrAddClientOrProviderDialog(QDialog, FWidget):
     def save_edit(self):
         ''' add operation '''
         print("Save")
-        name = unicode(self.nameField.text())
-        # legal_infos = unicode(self.legal_infos.text())
-        # email = unicode(self.email.text())
-        # address = unicode(self.address.toPlainText())
+        phone = self.phone_field.text()
         # field_error
         if check_is_empty(self.nameField):
             return
 
         prov_clt = self.prov_clt
-        if self.is_phone:
-            phone = unicode(self.phone_field.text())
-            if phone == '...':
-                field_error(self.phone_field, "Numéro téléphone manquant")
-                return
-            prov_clt.phone = int(phone.replace(".", ""))
-        prov_clt.name = name
-        # prov_clt.email = email
-        # prov_clt.legal_infos = legal_infos
-        # prov_clt.address = address
+        prov_clt.name = unicode(self.nameField.text())
+
+        if not self.new:
+            if phone != "":
+                prov_clt.phone = int(phone)
+            prov_clt.email = unicode(self.email.text())
+            prov_clt.legal_infos = unicode(self.legal_infos.text())
+            prov_clt.address = unicode(self.address.toPlainText())
+
         try:
             prov_clt.save()
             self.close()

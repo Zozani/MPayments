@@ -83,7 +83,7 @@ class DebtsViewWidget(FWidget):
 
         self.search_field = LineEdit()
         self.search_field.textChanged.connect(self.search)
-        self.search_field.setPlaceholderText(u"Nom de compte")
+        self.search_field.setPlaceholderText(u"Rechercher un compte")
         self.search_field.setMaximumHeight(40)
 
         self.splt_add = QSplitter(Qt.Horizontal)
@@ -279,16 +279,18 @@ class RapportTableWidget(FTableWidget):
         if isinstance(provid_clt_id, int):
             self.provider_clt = ProviderOrClient.get(id=provid_clt_id)
             qs = qs.select().where(Payment.provider_clt == self.provider_clt)
+            msg = "<h3>Compte : {}</h3> <h4>Tel: {}</h4>".format(
+                self.provider_clt.name, self.provider_clt.phone)
         else:
             self.provider_clt = "Tous"
             for prov in ProviderOrClient.select().where(
                     ProviderOrClient.type_ == ProviderOrClient.CLT):
                 self.remaining += prov.last_remaining()
-        self.parent.label_owner.setText(
-            "<h2>Compte : {}</h2>".format(self.provider_clt))
+            msg = self.provider_clt
+        self.parent.label_owner.setText(msg)
 
-        self.data = [(pay.date.strftime('%x'), pay.libelle, pay.debit, pay.credit,
-                      pay.balance, pay.id) for pay in qs.iterator()]
+        self.data = [(pay.date.strftime('%x'), pay.libelle, pay.debit,
+                      pay.credit, pay.balance, pay.id) for pay in qs.iterator()]
 
     def popup(self, pos):
 

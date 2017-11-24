@@ -12,6 +12,7 @@ from peewee import (
     DateTimeField, CharField, IntegerField, FloatField, BooleanField,
     ForeignKeyField, TextField)
 from Common.models import BaseModel, FileJoin, Owner
+from Common.ui.util import device_amount
 
 FDATE = u"%c"
 NOW = datetime.now()
@@ -101,16 +102,24 @@ class Payment(BaseModel):
     deleted = BooleanField(default=False)
     status = BooleanField(default=False)
 
+    def amount(self):
+        return self.credit if self.type_ == self.CREDIT else self.debit
+
     def __unicode__(self):
-        return "Le {date} {type_} d'un montant de {amount} Fcfa".format(
+        return "Le {date} {type_} d'un montant de {amount}".format(
             date=self.date.strftime(FDATE), type_=self.type_,
-            amount=self.credit if self.type_ == self.CREDIT else self.debit, lib=self.libelle)
+            amount=self.amount(), lib=self.libelle)
 
     def __str__(self):
         return self.__unicode__()
 
     def display_name(self):
-        return self.__unicode__()
+        return "{amount} {action} le {date}.".format(
+            amount=device_amount(self.amount()), action=self.action(),
+            date=self.date.strftime("%x"))
+
+    def action(self):
+        return "Créditer" if self.type_ == self.CREDIT else "Débiter"
 
     def save(self):
         """

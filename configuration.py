@@ -41,21 +41,17 @@ class Config(CConstants):
 
     pdf_source = "pdf_source.pdf"
     APP_NAME = "MPayments"
-
-    APP_VERSION = u"1.0"
-    APP_DATE = u"02/2016"
+    APP_VERSION = 1
+    APP_DATE = u"11/2017"
     img_media = os.path.join(os.path.join(ROOT_DIR, "static"), "images/")
     APP_LOGO = os.path.join(img_media, "logo.png")
     APP_LOGO_ICO = os.path.join(img_media, "logo.ico")
 
-    DEVISE_M = "USD"
-    DEVISE_M = "XOF"
-
-    org = Organization.get(id=1)
-
-    NAME_ORGA = org.name_orga
-    CONTACT_ORGA = u"Bamako-Rep. du Mali"
-    TEL_ORGA = org.phone
-    ADRESS_ORGA = org.adress_org
-    BP = org.bp
-    EMAIL_ORGA = org.email_org
+    # org = Organization.get(id=1)
+    # NAME_ORGA = org.name_orga
+    # CONTACT_ORGA = u"Bamako-Rep. du Mali"
+    # TEL_ORGA = org.phone
+    # ADRESS_ORGA = org.adress_org
+    # BP = org.bp
+    # EMAIL_ORGA = org.email_org
+    # DEVISE_M = org.devise

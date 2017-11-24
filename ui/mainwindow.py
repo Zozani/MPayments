@@ -12,7 +12,6 @@ from configuration import Config
 
 # from ui.menutoolbar import MenuToolBar
 from ui.menubar import MenuBar
-from Common.ui.statusbar import GStatusBar
 from ui.debt_manager import DebtsViewWidget
 
 
@@ -27,9 +26,6 @@ class MainWindow(FMainWindow):
         self.setMenuBar(self.menubar)
         # self.toolbar = MenuToolBar(self)
         # self.addToolBar(Qt.LeftToolBarArea, self.toolbar)
-
-        self.statusbar = GStatusBar(self)
-        self.setStatusBar(self.statusbar)
 
         self.page = DebtsViewWidget
 

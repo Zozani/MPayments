@@ -66,8 +66,8 @@ class EditOrAddPaymentrDialog(QDialog, FWidget):
 
         formbox = QFormLayout()
         formbox.addRow(FormLabel(u"Date : *"), self.payment_date_field)
-        formbox.addRow(FormLabel(u"Libelle :"), self.libelle_field)
         formbox.addRow(FormLabel(u"Montant : *"), self.amount_field)
+        formbox.addRow(FormLabel(u"Libelle :"), self.libelle_field)
 
         butt = Button_save(u"Enregistrer")
         butt.clicked.connect(self.save_edit)
