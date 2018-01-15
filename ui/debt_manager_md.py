@@ -15,8 +15,8 @@ from models import ProviderOrClient, Payment
 from Common.ui.common import (
     BttExportXLSX, BttExportPDF, FWidget, Button, LineEdit, FormLabel)
 from Common.ui.table import FTableWidget, TotalsWidget
-from Common.ui.util import is_float, device_amount
-# from data_helper import device_amount
+from Common.ui.util import is_float
+from data_helper import device
 
 
 from ui.payment_edit_add import EditOrAddPaymentrDialog
@@ -33,13 +33,13 @@ except:
 ALL_CONTACTS = "TOUS"
 
 
-class DebtsViewWidget(FWidget):
+class DebtsMDViewWidget(FWidget):
 
     """ Shows the home page  """
 
     def __init__(self, parent=0, *args, **kwargs):
-        super(DebtsViewWidget, self).__init__(parent=parent,
-                                              *args, **kwargs)
+        super(DebtsMDViewWidget, self).__init__(parent=parent,
+                                                *args, **kwargs)
         self.parent = parent
         self.parentWidget().setWindowTitle(
             Config.APP_NAME + u" Gestion des dettes")
@@ -178,7 +178,7 @@ class ProviderOrClientTableWidget(QListWidget):
     def refresh_(self, provid_clt=None):
         """ Rafraichir la liste des provid_cltes"""
         self.clear()
-        self.addItem(ProviderOrClientQListWidgetItem(ALL_CONTACTS))
+        self.addItem(ProviderOrClientQListWidgetItem("Les comptes"))
         qs = ProviderOrClient.select().where(
             ProviderOrClient.type_ == ProviderOrClient.CLT)
         if provid_clt:
@@ -192,10 +192,10 @@ class ProviderOrClientTableWidget(QListWidget):
         if isinstance(self.provid_clt_id, int):
             self.parent.sub_btt.setEnabled(True)
             self.parent.add_btt.setEnabled(True)
+            self.parent.table.refresh_(provid_clt_id=self.provid_clt_id)
         else:
             self.parent.sub_btt.setEnabled(False)
             self.parent.add_btt.setEnabled(False)
-        self.parent.table.refresh_(provid_clt_id=self.provid_clt_id)
 
 
 class ProviderOrClientQListWidgetItem(QListWidgetItem):
@@ -224,7 +224,7 @@ class ProviderOrClientQListWidgetItem(QListWidgetItem):
             font.setBold(True)
             self.setFont(font)
             self.setTextAlignment(Qt.AlignCenter)
-            self.setText(u"Tous")
+            self.setText(u"Les comptes")
 
     @property
     def provid_clt_id(self):
@@ -252,7 +252,7 @@ class RapportTableWidget(FTableWidget):
         self.align_map = {0: 'l', 1: 'l', 2: 'r', 3: 'r', 4: 'r'}
         self.ecart = -15
         self.display_vheaders = False
-        self.refresh_()
+        # self.refresh_()
 
     def refresh_(self, provid_clt_id=None, search=None):
         """ """
@@ -269,7 +269,7 @@ class RapportTableWidget(FTableWidget):
         self.refresh()
 
         self.parent.label_balance.setText(
-            self.parent.display_balance(device_amount(self.balance_tt, provid_clt_id)))
+            self.parent.display_balance(device(self.balance_tt, provid_clt_id)))
         self.hideColumn(len(self.hheaders) - 1)
 
     def set_data_for(self, provid_clt_id=None, search=None):
@@ -284,11 +284,12 @@ class RapportTableWidget(FTableWidget):
             msg = "<h3>Compte : {}</h3> <h4>Tel: {}</h4>".format(
                 self.provider_clt.name, self.provider_clt.phone)
         else:
-            self.provider_clt = "Tous"
-            for prov in ProviderOrClient.select().where(
-                    ProviderOrClient.type_ == ProviderOrClient.CLT):
-                self.remaining += prov.last_remaining()
-            msg = self.provider_clt
+            return
+            # self.provider_clt = "Tous"
+            # for prov in ProviderOrClient.select().where(
+            #         ProviderOrClient.type_ == ProviderOrClient.CLT):
+            #     self.remaining += prov.last_remaining()
+            # msg = self.provider_clt
         self.parent.label_owner.setText(msg)
 
         self.data = [(pay.date.strftime('%x'), pay.libelle, pay.debit,
@@ -342,9 +343,9 @@ class RapportTableWidget(FTableWidget):
         self.label_mov_tt = u"Totals mouvements: "
         self.setItem(nb_rows, 1, TotalsWidget(self.label_mov_tt))
         self.setItem(
-            nb_rows, 2, TotalsWidget(device_amount(self.totals_debit, self.provid_clt_id)))
+            nb_rows, 2, TotalsWidget(device(self.totals_debit, self.provid_clt_id)))
         self.setItem(
-            nb_rows, 3, TotalsWidget(device_amount(self.totals_credit, self.provid_clt_id)))
+            nb_rows, 3, TotalsWidget(device(self.totals_credit, self.provid_clt_id)))
 
     def dict_data(self):
         title = "Movements"
@@ -363,6 +364,5 @@ class RapportTableWidget(FTableWidget):
             'date': self.parent.now,
             'others': [("A7", "C7", "Compte : {}".format(self.provider_clt)),
                        ("A8", "B8", "Solde au {}: {}".format(
-                        self.parent.now, device_amount(
-                            self.balance_tt, self.provider_clt.id if Config.DEVISEPEPROV else None))), ],
+                        self.parent.now, device(self.balance_tt, self.provider_clt.id))), ],
         }

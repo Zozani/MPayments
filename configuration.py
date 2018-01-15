@@ -7,7 +7,7 @@ from __future__ import (unicode_literals, absolute_import, division,
 import os
 # from static import Constants
 from Common.cstatic import CConstants
-from Common.models import Organization
+# from Common.models import Organization
 
 ROOT_DIR = os.path.dirname(os.path.abspath('__file__'))
 
@@ -25,6 +25,8 @@ class Config(CConstants):
     # ------------------------- Organisation --------------------------#
 
     DEBUG = False
+    DEVISEPEPROV = True
+    DEVISEPEPROV = False
 
     # des_image_record = "static/img_prod"
     ARMOIRE = "img_prod"

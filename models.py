@@ -10,9 +10,9 @@ from datetime import datetime
 
 from peewee import (
     DateTimeField, CharField, IntegerField, FloatField, BooleanField,
-    ForeignKeyField, TextField)
+    ForeignKeyField, TextField, OperationalError)
 from Common.models import BaseModel, FileJoin, Owner
-from Common.ui.util import device_amount
+from data_helper import device
 
 FDATE = u"%c"
 NOW = datetime.now()
@@ -29,6 +29,15 @@ class ProviderOrClient(BaseModel):
     FSEUR = 'Fournisseur'
     TYPES = [CLT, FSEUR]
 
+    USA = "dollar"
+    XOF = "xof"
+    EURO = "euro"
+    DEVISE = {
+        USA: "$",
+        XOF: "F",
+        EURO: "€"
+    }
+
     name = CharField(unique=True, verbose_name=("Nom de votre entreprise"))
     address = TextField(
         null=True, verbose_name=("Adresse principale de votre société"))
@@ -42,6 +51,7 @@ class ProviderOrClient(BaseModel):
     picture = ForeignKeyField(
         FileJoin, null=True, related_name='file_joins_pictures',
         verbose_name=("image de la societe"))
+    devise = CharField(choices=DEVISE, default=XOF)
 
     def payments(self):
         return Payment.select().where(Payment.provider_clt == self)
@@ -115,7 +125,7 @@ class Payment(BaseModel):
 
     def display_name(self):
         return "{amount} {action} le {date}.".format(
-            amount=device_amount(self.amount()), action=self.action(),
+            amount=device(self.amount(), self.provider_clt), action=self.action(),
             date=self.date.strftime("%x"))
 
     def action(self):

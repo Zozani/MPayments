@@ -27,10 +27,12 @@ def main():
     window = MainWindow()
     window.setStyleSheet(theme)
     setattr(FWindow, 'window', window)
-    window.show()
-    # window.showMaximized()
+    # window.show()
+    window.showMaximized()
     sys.exit(app.exec_())
 
 if __name__ == '__main__':
     if cmain():
+        from migrations import init
+        init()
         main()

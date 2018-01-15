@@ -5,11 +5,12 @@
 from __future__ import (
     unicode_literals, absolute_import, division, print_function)
 
-from models import Payment
-from configuration import Config
+from Common.ui.util import formatted_number
 
 
 def check_befor_update_payment(pay):
+    from models import Payment
+
     balance = pay.balance
     lt = []
     for rpt in pay.next_rpts():
@@ -25,3 +26,23 @@ def check_befor_update_payment(pay):
         # if balance < 0:
         #     return False
     return True
+
+
+def device(value, provider, dvs=None):
+
+    from models import ProviderOrClient
+    if dvs:
+        return "{} {}".format(formatted_number(value), dvs)
+    try:
+        if isinstance(provider, int):
+            provider = ProviderOrClient().get(id=int(provider))
+        else:
+            provider = provider
+    except Exception as e:
+        print(e)
+    d = provider.DEVISE[provider.devise]
+    v = formatted_number(value)
+    if provider.devise == provider.USA:
+        return "{d}{v}".format(v=v, d=d)
+    else:
+        return "{v} {d}".format(v=v, d=d)
