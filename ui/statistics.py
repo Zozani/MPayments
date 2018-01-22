@@ -201,6 +201,7 @@ class RapportTableWidget(FTableWidget):
 
         # self.balance_tt = last_balance
         self.balance_tt = self.totals_credit - self.totals_debit
+        print("Balance", self.balance_tt)
 
         self.label_mov_tt = u"Totals mouvements: "
         self.setItem(nb_rows, 1, TotalsWidget(self.label_mov_tt))

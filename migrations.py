@@ -1,19 +1,16 @@
 
-def v001():
+def make_migrate():
     print("MIGRATION")
     from Common.models import migrator
 
-    from playhouse.migrate import migrate, CharField
+    from playhouse.migrate import migrate, CharField, FloatField
 
-    migrate(
-        migrator.add_column('ProviderOrClient', 'devise',
-                            CharField(default="xof")),
-    )
+    migrations = [('ProviderOrClient', 'devise', CharField(default="xof")),
+                  ('Payment', 'weight', FloatField(default="0"))]
 
-
-def init():
-
-    try:
-        v001()
-    except:
-        pass
+    for x, y, z in migrations:
+        try:
+            migrate(migrator.add_column(x, y, z))
+            print(x, " : ", y)
+        except Exception as e:
+            print(e)

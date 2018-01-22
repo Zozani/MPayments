@@ -241,18 +241,18 @@ class RapportTableWidget(FTableWidget):
         FTableWidget.__init__(self, parent=parent, *args, **kwargs)
 
         self.hheaders = [
-            "Date", "Libelle opération", "Débit", "Crédit", "Solde", ""]
+            "Date", "Libelle opération", "Poids (kg)", "Débit", "Crédit", "Solde", ""]
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.popup)
 
         self.parent = parent
 
         self.sorter = False
-        self.stretch_columns = [0, 1, 2, 3, 4]
-        self.align_map = {0: 'l', 1: 'l', 2: 'r', 3: 'r', 4: 'r'}
+        self.stretch_columns = [0, 1, 2, 3, 4, 5]
+        self.align_map = {0: 'l', 1: 'l', 2: 'r', 3: 'r', 4: 'r', 5: 'r'}
         self.ecart = -15
         self.display_vheaders = False
-        self.refresh_()
+        # self.refresh_()
 
     def refresh_(self, provid_clt_id=None, search=None):
         """ """
@@ -268,8 +268,8 @@ class RapportTableWidget(FTableWidget):
         self.set_data_for(provid_clt_id=provid_clt_id, search=search)
         self.refresh()
 
-        self.parent.label_balance.setText(
-            self.parent.display_balance(device_amount(self.balance_tt, provid_clt_id)))
+        self.parent.label_balance.setText(self.parent.display_balance(
+            device_amount(self.balance_tt, provid_clt_id)))
         self.hideColumn(len(self.hheaders) - 1)
 
     def set_data_for(self, provid_clt_id=None, search=None):
@@ -291,8 +291,9 @@ class RapportTableWidget(FTableWidget):
             msg = self.provider_clt
         self.parent.label_owner.setText(msg)
 
-        self.data = [(pay.date.strftime('%x'), pay.libelle, pay.debit,
-                      pay.credit, pay.balance, pay.id) for pay in qs.iterator()]
+        self.data = [(
+            pay.date.strftime('%x'), pay.libelle, pay.weight, pay.debit,
+            pay.credit, pay.balance, pay.id) for pay in qs.iterator()]
 
     def popup(self, pos):
 
@@ -311,7 +312,6 @@ class RapportTableWidget(FTableWidget):
         if action == editaction:
             self.parent.open_dialog(EditOrAddPaymentrDialog, modal=True,
                                     payment=payment, table_p=self)
-
         if action == delaction:
             self.parent.open_dialog(DeleteViewWidget, modal=True,
                                     table_p=self, obj=payment)
@@ -321,15 +321,18 @@ class RapportTableWidget(FTableWidget):
         nb_rows = self.rowCount()
         self.setRowCount(nb_rows + 2)
         self.setSpan(nb_rows + 2, 2, 2, 4)
+        self.totals_weight = 0
         self.totals_debit = 0
         self.totals_credit = 0
         self.balance_tt = 0
         cp = 0
         for row_num in range(0, self.data.__len__()):
-            mtt_debit = is_float(str(self.item(row_num, 2).text()))
-            mtt_credit = is_float(str(self.item(row_num, 3).text()))
+            mtt_weight = is_float(str(self.item(row_num, 2).text()))
+            mtt_debit = is_float(str(self.item(row_num, 3).text()))
+            mtt_credit = is_float(str(self.item(row_num, 4).text()))
             # if cp == 0:
             # last_balance = is_float(str(self.item(row_num, 4).text()))
+            self.totals_weight += mtt_weight
             self.totals_debit += mtt_debit
             self.totals_credit += mtt_credit
             cp += 1
@@ -341,10 +344,12 @@ class RapportTableWidget(FTableWidget):
 
         self.label_mov_tt = u"Totals mouvements: "
         self.setItem(nb_rows, 1, TotalsWidget(self.label_mov_tt))
-        self.setItem(
-            nb_rows, 2, TotalsWidget(device_amount(self.totals_debit, self.provid_clt_id)))
-        self.setItem(
-            nb_rows, 3, TotalsWidget(device_amount(self.totals_credit, self.provid_clt_id)))
+        self.setItem(nb_rows, 2, TotalsWidget(device_amount(
+            self.totals_weight, self.provid_clt_id)))
+        self.setItem(nb_rows, 3, TotalsWidget(device_amount(
+            self.totals_debit, self.provid_clt_id)))
+        self.setItem(nb_rows, 4, TotalsWidget(device_amount(
+            self.totals_credit, self.provid_clt_id)))
 
     def dict_data(self):
         title = "Movements"
@@ -353,8 +358,9 @@ class RapportTableWidget(FTableWidget):
             'headers': self.hheaders[:-1],
             'data': self.data,
             "extend_rows": [(1, self.label_mov_tt),
-                            (2, self.totals_debit),
-                            (3, self.totals_credit), ],
+                            (2, self.totals_weight),
+                            (3, self.totals_debit),
+                            (4, self.totals_credit), ],
             'sheet': title,
             # 'title': self.title,
             'widths': self.stretch_columns,

@@ -4,19 +4,17 @@
 from __future__ import (
     unicode_literals, absolute_import, division, print_function)
 
-import os
+# import os
 
-from PyQt4.QtCore import Qt, QDate
-from PyQt4.QtGui import (QIcon, QVBoxLayout, QFileDialog, QDialog, QTextEdit,
-                         QFormLayout, QPushButton, QCompleter)
+from PyQt4.QtCore import QDate
+from PyQt4.QtGui import (QVBoxLayout, QDialog, QTextEdit, QFormLayout)
 
-from configuration import Config
+# from configuration import Config
 
-from Common.ui.util import check_is_empty, field_error, date_to_datetime
-from Common.ui.common import (FWidget, FPageTitle, Button_save, FormLabel,
-                              FLabel, LineEdit, FloatLineEdit, Warning_btt,
-                              FormatDate)
-import peewee
+from Common.ui.util import check_is_empty, date_to_datetime
+from Common.ui.common import (FWidget, Button_save, FormLabel,
+                              FloatLineEdit, FormatDate)
+
 from models import Payment
 
 
@@ -41,8 +39,8 @@ class EditOrAddPaymentrDialog(QDialog, FWidget):
             self.type_ = payment.type_
             self.payment_date_field = FormatDate(self.payment.date)
             self.payment_date_field.setEnabled(False)
-            self.title = u"Modification de {} {}".format(self.payment.type_,
-                                                         self.payment.libelle)
+            self.title = u"Modification de {} {}".format(
+                self.payment.type_, self.payment.libelle)
             self.succes_msg = u"{} a été bien mise à jour".format(
                 self.payment.type_)
 
@@ -50,15 +48,20 @@ class EditOrAddPaymentrDialog(QDialog, FWidget):
                 amount = payment.credit
             elif self.type_ == Payment.DEBIT:
                 amount = payment.debit
+                weight = self.payment.weight
         else:
             self.new = True
+            self.payment = Payment()
             amount = ""
+            weight = ""
             self.payment_date_field = FormatDate(QDate.currentDate())
             self.succes_msg = u"Client a été bien enregistré"
             self.title = u"Création d'un nouvel client"
-            self.payment = Payment()
+
         self.setWindowTitle(self.title)
 
+        self.payment_weight_field = FloatLineEdit(
+            unicode(weight).replace(".", ","))
         self.amount_field = FloatLineEdit(unicode(amount).replace(".", ","))
         self.libelle_field = QTextEdit(self.payment.libelle)
 
@@ -67,6 +70,9 @@ class EditOrAddPaymentrDialog(QDialog, FWidget):
         formbox = QFormLayout()
         formbox.addRow(FormLabel(u"Date : *"), self.payment_date_field)
         formbox.addRow(FormLabel(u"Montant : *"), self.amount_field)
+        if self.type_ == Payment.DEBIT:
+            formbox.addRow(FormLabel(u"Poids (Kg) : *"),
+                           self.payment_weight_field)
         formbox.addRow(FormLabel(u"Libelle :"), self.libelle_field)
 
         butt = Button_save(u"Enregistrer")
@@ -78,13 +84,14 @@ class EditOrAddPaymentrDialog(QDialog, FWidget):
 
     def save_edit(self):
         ''' add operation '''
+        print("saving")
         if check_is_empty(self.amount_field):
             return
         self.pro_clt_id = self.table_p.provid_clt_id
         payment_date = unicode(self.payment_date_field.text())
         libelle = unicode(self.libelle_field.toPlainText())
-        amount = float(
-            unicode(self.amount_field.text().replace(",", ".").replace(" ", "").replace('\xa0', '')))
+        amount = float(unicode(self.amount_field.text(
+        ).replace(",", ".").replace(" ", "").replace('\xa0', '')))
 
         payment = self.payment
         payment.type_ = self.type_
@@ -96,11 +103,18 @@ class EditOrAddPaymentrDialog(QDialog, FWidget):
             payment.credit = amount
         elif self.type_ == Payment.DEBIT:
             payment.debit = amount
+
+            if check_is_empty(self.payment_weight_field):
+                return
+            payment.weight = float(unicode(self.payment_weight_field.text(
+            ).replace(",", ".").replace(" ", "").replace('\xa0', '')))
         try:
             payment.save()
             self.close()
-            self.parent.Notify(u"le {type} {lib} à été enregistré avec succès".format(
-                type=self.type_, lib=libelle), "success")
+            self.parent.Notify(
+                u"le {type} {lib} à été enregistré avec succès".format(
+                    type=self.type_, lib=libelle), "success")
             self.table_p.refresh_(provid_clt_id=self.pro_clt_id)
         except Exception as e:
+            print("SAVE Payment : ", e)
             self.parent.Notify(e, "error")

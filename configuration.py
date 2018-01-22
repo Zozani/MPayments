@@ -14,8 +14,7 @@ ROOT_DIR = os.path.dirname(os.path.abspath('__file__'))
 
 class Config(CConstants):
 
-    """ docstring for Config
-                            """
+    """ docstring for Config """
 
     DATEFORMAT = u'%d-%m-%Y'
 

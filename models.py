@@ -108,6 +108,7 @@ class Payment(BaseModel):
     credit = FloatField(verbose_name=("Crédit"))
     libelle = CharField(verbose_name=("Libelle"), null=True)
     balance = FloatField(verbose_name=("Solde"))
+    weight = FloatField(verbose_name=("Poids"), null=True)
     type_ = CharField(choices=DC)
     deleted = BooleanField(default=False)
     status = BooleanField(default=False)
