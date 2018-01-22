@@ -34,6 +34,7 @@ class EditOrAddPaymentrDialog(QDialog, FWidget):
         self.parent = parent
         self.table_p = table_p
 
+        weight = ""
         if self.payment:
             self.new = False
             self.type_ = payment.type_
@@ -53,7 +54,6 @@ class EditOrAddPaymentrDialog(QDialog, FWidget):
             self.new = True
             self.payment = Payment()
             amount = ""
-            weight = ""
             self.payment_date_field = FormatDate(QDate.currentDate())
             self.succes_msg = u"Client a été bien enregistré"
             self.title = u"Création d'un nouvel client"

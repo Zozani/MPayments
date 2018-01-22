@@ -16,8 +16,8 @@ from Common.ui.common import (
     FormLabel, FWidget, FPeriodHolder, FPageTitle, BttExportPDF,
     BttExportXLSX, FormatDate, ExtendedComboBox)
 from Common.ui.table import FTableWidget, TotalsWidget
-from Common.ui.util import is_float, date_to_datetime
-from data_helper import device
+from Common.ui.util import is_float, date_to_datetime, device_amount
+# from data_helper import device_amount
 
 from models import Payment, ProviderOrClient
 from ui.payment_edit_add import EditOrAddPaymentrDialog
@@ -48,7 +48,7 @@ class StatisticsViewWidget(FWidget, FPeriodHolder):
         self.end_date_field = FormatDate(QDate.currentDate())
         self.end_date_field.dateChanged.connect(self.refresh_prov_clt)
         self.now = datetime.now().strftime(Config.DATEFORMAT)
-        self.balanceField = FormLabel(device(0))
+        self.balanceField = FormLabel("")
         balance_box = QGridLayout()
         balance_box.addWidget(self.balanceField, 0, 3)
         balance_box.setColumnStretch(0, 1)
@@ -117,15 +117,15 @@ class RapportTableWidget(FTableWidget):
         FTableWidget.__init__(self, parent=parent, *args, **kwargs)
 
         self.hheaders = [
-            "Date", "Libelle opération", "Débit", "Crédit", "Solde", ""]
+            "Date", "Libelle opération", "Poids (kg)", "Débit", "Crédit", "Solde", ""]
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.popup)
 
         self.parent = parent
 
         self.sorter = True
-        self.stretch_columns = [0, 1, 2, 3, 4]
-        self.align_map = {0: 'l', 1: 'l', 2: 'r', 3: 'r', 4: 'r'}
+        self.stretch_columns = [0, 1, 2, 3, 4, 5]
+        self.align_map = {0: 'l', 1: 'l', 2: 'r', 3: 'r', 4: 'r', 5: 'r'}
         # self.ecart = -5
         self.display_vheaders = False
         self.refresh_()
@@ -133,8 +133,8 @@ class RapportTableWidget(FTableWidget):
     def refresh_(self):
         """ """
 
-        self.totals_debit = 0
-        self.totals_credit = 0
+        # self.totals_debit = 0
+        # self.totals_credit = 0
         self.balance_tt = 0
         self.on_date = date_to_datetime(self.parent.on_date_field.text())
         self.end_date = date_to_datetime(self.parent.end_date_field.text())
@@ -144,7 +144,7 @@ class RapportTableWidget(FTableWidget):
         self.refresh()
 
         self.parent.balanceField.setText(
-            self.parent.display_balance(device(self.balance_tt)))
+            self.parent.display_balance(device_amount(self.balance_tt)))
 
         self.hideColumn(len(self.hheaders) - 1)
 
@@ -157,9 +157,9 @@ class RapportTableWidget(FTableWidget):
         qs = qs.select().where(
             Payment.status == False, Payment.date <= self.end_date,
             Payment.date >= self.on_date).order_by(Payment.date.asc())
-        self.data = [
-            (pay.date, pay.libelle, pay.debit, pay.credit, pay.balance, pay.id)
-            for pay in qs]
+        self.data = [(
+            pay.date, pay.libelle, pay.weight, pay.debit, pay.credit,
+            pay.balance, pay.id) for pay in qs]
 
     def popup(self, pos):
 
@@ -189,26 +189,33 @@ class RapportTableWidget(FTableWidget):
         nb_rows = self.rowCount()
         self.setRowCount(nb_rows + 2)
         self.setSpan(nb_rows + 2, 2, 2, 4)
+
+        self.totals_weight = 0
+        self.totals_debit = 0
+        self.totals_credit = 0
         cp = 0
         for row_num in range(0, self.data.__len__()):
-            mtt_debit = is_float(unicode(self.item(row_num, 2).text()))
-            mtt_credit = is_float(unicode(self.item(row_num, 3).text()))
-            if cp == 0:
-                last_balance = is_float(unicode(self.item(row_num, 4).text()))
+            mtt_weight = is_float(str(self.item(row_num, 2).text()))
+            mtt_debit = is_float(unicode(self.item(row_num, 3).text()))
+            mtt_credit = is_float(unicode(self.item(row_num, 4).text()))
+            # if cp == 0:
+            #     last_balance = is_float(unicode(self.item(row_num, 4).text()))
+            self.totals_weight += mtt_weight
             self.totals_debit += mtt_debit
             self.totals_credit += mtt_credit
             cp += 1
 
         # self.balance_tt = last_balance
         self.balance_tt = self.totals_credit - self.totals_debit
-        print("Balance", self.balance_tt)
 
         self.label_mov_tt = u"Totals mouvements: "
         self.setItem(nb_rows, 1, TotalsWidget(self.label_mov_tt))
-        self.setItem(
-            nb_rows, 2, TotalsWidget(device(self.totals_debit)))
-        self.setItem(
-            nb_rows, 3, TotalsWidget(device(self.totals_credit)))
+        self.setItem(nb_rows, 2, TotalsWidget(
+            device_amount(self.totals_weight)))
+        self.setItem(nb_rows, 3, TotalsWidget(
+            device_amount(self.totals_debit)))
+        self.setItem(nb_rows, 4, TotalsWidget(
+            device_amount(self.totals_credit)))
 
     def dict_data(self):
         title = "versements"
@@ -217,10 +224,11 @@ class RapportTableWidget(FTableWidget):
             'headers': self.hheaders[:-1],
             'data': self.data,
             "extend_rows": [(1, self.label_mov_tt),
-                            (2, self.totals_debit),
-                            (3, self.totals_credit), ],
-            "footers": [("C", "E", "Solde du {} au {} = {}".format(
-                self.on_date, self.end_date, device(
+                            (2, self.totals_weight),
+                            (3, self.totals_debit),
+                            (4, self.totals_credit), ],
+            "footers": [("C", "E", "Solde du {} = {}".format(
+                self.end_date.strftime("%x"), device_amount(
                         self.balance_tt))), ],
             'sheet': title,
             # 'title': self.title,
@@ -229,5 +237,6 @@ class RapportTableWidget(FTableWidget):
             # 'exclude_row': len(self.data) - 1,
             'others': [("A7", "C7", "Compte : {}".format(
                 self.parent.compte_name)), ],
-            "date": "Du {} au {}".format(self.on_date, self.end_date)
+            "date": "Du {} au {}".format(
+                self.on_date.strftime("%x"), self.end_date.strftime("%x"))
         }

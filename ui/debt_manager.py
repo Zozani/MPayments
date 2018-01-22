@@ -250,7 +250,7 @@ class RapportTableWidget(FTableWidget):
         self.sorter = False
         self.stretch_columns = [0, 1, 2, 3, 4, 5]
         self.align_map = {0: 'l', 1: 'l', 2: 'r', 3: 'r', 4: 'r', 5: 'r'}
-        self.ecart = -15
+        # self.ecart = -5
         self.display_vheaders = False
         # self.refresh_()
 
@@ -260,16 +260,13 @@ class RapportTableWidget(FTableWidget):
         self.totals_debit = 0
         self.totals_credit = 0
         self.balance_tt = 0
-        # self.on_date = date_to_datetime(self.parent.on_date_field.text())
-        # self.end_date = date_to_datetime(self.parent.end_date_field.text())
-
-        # l_date = [self.on_date, self.end_date]
         self._reset()
         self.set_data_for(provid_clt_id=provid_clt_id, search=search)
         self.refresh()
 
         self.parent.label_balance.setText(self.parent.display_balance(
-            device_amount(self.balance_tt, provid_clt_id)))
+            device_amount(
+                self.balance_tt, provid_clt_id if Config.DEVISEPEPROV else None)))
         self.hideColumn(len(self.hheaders) - 1)
 
     def set_data_for(self, provid_clt_id=None, search=None):
@@ -345,11 +342,11 @@ class RapportTableWidget(FTableWidget):
         self.label_mov_tt = u"Totals mouvements: "
         self.setItem(nb_rows, 1, TotalsWidget(self.label_mov_tt))
         self.setItem(nb_rows, 2, TotalsWidget(device_amount(
-            self.totals_weight, self.provid_clt_id)))
+            self.totals_weight)))
         self.setItem(nb_rows, 3, TotalsWidget(device_amount(
-            self.totals_debit, self.provid_clt_id)))
+            self.totals_debit)))
         self.setItem(nb_rows, 4, TotalsWidget(device_amount(
-            self.totals_credit, self.provid_clt_id)))
+            self.totals_credit)))
 
     def dict_data(self):
         title = "Movements"
