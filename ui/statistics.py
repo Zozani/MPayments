@@ -16,8 +16,8 @@ from Common.ui.common import (
     FormLabel, FWidget, FPeriodHolder, FPageTitle, BttExportPDF,
     BttExportXLSX, FormatDate, ExtendedComboBox)
 from Common.ui.table import FTableWidget, TotalsWidget
-from Common.ui.util import is_float, date_to_datetime
-from data_helper import device
+from Common.ui.util import is_float, date_to_datetime, device_amount
+# from data_helper import device_amount
 
 from models import Payment, ProviderOrClient
 from ui.payment_edit_add import EditOrAddPaymentrDialog
@@ -48,7 +48,7 @@ class StatisticsViewWidget(FWidget, FPeriodHolder):
         self.end_date_field = FormatDate(QDate.currentDate())
         self.end_date_field.dateChanged.connect(self.refresh_prov_clt)
         self.now = datetime.now().strftime(Config.DATEFORMAT)
-        self.balanceField = FormLabel(device(0))
+        self.balanceField = FormLabel("")
         balance_box = QGridLayout()
         balance_box.addWidget(self.balanceField, 0, 3)
         balance_box.setColumnStretch(0, 1)
@@ -144,7 +144,7 @@ class RapportTableWidget(FTableWidget):
         self.refresh()
 
         self.parent.balanceField.setText(
-            self.parent.display_balance(device(self.balance_tt)))
+            self.parent.display_balance(device_amount(self.balance_tt)))
 
         self.hideColumn(len(self.hheaders) - 1)
 
@@ -189,6 +189,8 @@ class RapportTableWidget(FTableWidget):
         nb_rows = self.rowCount()
         self.setRowCount(nb_rows + 2)
         self.setSpan(nb_rows + 2, 2, 2, 4)
+        self.totals_debit = 0
+        self.totals_credit = 0
         cp = 0
         for row_num in range(0, self.data.__len__()):
             mtt_debit = is_float(unicode(self.item(row_num, 2).text()))
@@ -205,9 +207,9 @@ class RapportTableWidget(FTableWidget):
         self.label_mov_tt = u"Totals mouvements: "
         self.setItem(nb_rows, 1, TotalsWidget(self.label_mov_tt))
         self.setItem(
-            nb_rows, 2, TotalsWidget(device(self.totals_debit)))
+            nb_rows, 2, TotalsWidget(device_amount(self.totals_debit)))
         self.setItem(
-            nb_rows, 3, TotalsWidget(device(self.totals_credit)))
+            nb_rows, 3, TotalsWidget(device_amount(self.totals_credit)))
 
     def dict_data(self):
         title = "versements"
@@ -219,7 +221,7 @@ class RapportTableWidget(FTableWidget):
                             (2, self.totals_debit),
                             (3, self.totals_credit), ],
             "footers": [("C", "E", "Solde du {} au {} = {}".format(
-                self.on_date, self.end_date, device(
+                self.on_date, self.end_date, device_amount(
                         self.balance_tt))), ],
             'sheet': title,
             # 'title': self.title,

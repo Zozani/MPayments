@@ -26,7 +26,7 @@ class Config(CConstants):
 
     DEBUG = False
     DEVISEPEPROV = True
-    DEVISEPEPROV = False
+    # DEVISEPEPROV = False
 
     # des_image_record = "static/img_prod"
     ARMOIRE = "img_prod"
