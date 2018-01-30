@@ -33,6 +33,4 @@ def main():
 
 if __name__ == '__main__':
     if cmain():
-        from migrations import init
-        init()
         main()
