@@ -9,11 +9,8 @@ from PyQt4.QtGui import (QMessageBox, QIcon, QAction, QPixmap)
 from PyQt4.QtCore import SIGNAL
 
 from configuration import Config
-from Common.exports import export_database_as_file
 from Common.ui.common import FWidget
 from Common.ui.cmenubar import FMenuBar
-from ui.statistics import StatisticsViewWidget
-from ui.debt_manager import DebtsViewWidget
 
 
 class MenuBar(FMenuBar, FWidget):
@@ -24,12 +21,15 @@ class MenuBar(FMenuBar, FWidget):
         self.setWindowIcon(QIcon(QPixmap("{}".format(Config.APP_LOGO))))
         self.parent = parent
 
-        menu = [{"name": u"Versements", "icon": 'logo', "admin":
-                 False, "shortcut": "Ctrl+V", "goto": DebtsViewWidget},
-                {"name": u"Statistiques", "icon": 'state', "admin":
-                 False, "shortcut": "Ctrl+S", "goto": StatisticsViewWidget},
+        from ui.statistics import StatisticsViewWidget
+        from ui.debt_manager import DebtsViewWidget
 
-                ]
+        menu = [
+            {"name": u"Statistiques", "icon": 'state', "admin":
+             False, "shortcut": "Ctrl+S", "goto": StatisticsViewWidget},
+            {"name": u"Versements", "icon": 'logo', "admin":
+             False, "shortcut": "Ctrl+V", "goto": DebtsViewWidget},
+        ]
 
         # Menu aller à
         goto_ = self.addMenu(u"&Aller a")

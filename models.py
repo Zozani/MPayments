@@ -8,11 +8,10 @@ from __future__ import (
 
 from datetime import datetime
 
-from peewee import (
-    DateTimeField, CharField, IntegerField, FloatField, BooleanField,
-    ForeignKeyField, TextField, OperationalError)
+from peewee import (DateTimeField, CharField, IntegerField, FloatField,
+                    BooleanField, ForeignKeyField, TextField)
 from Common.models import BaseModel, FileJoin, Owner
-from data_helper import device
+from data_helper import device_amount
 
 FDATE = u"%c"
 NOW = datetime.now()
@@ -126,7 +125,7 @@ class Payment(BaseModel):
 
     def display_name(self):
         return "{amount} {action} le {date}.".format(
-            amount=device(self.amount(), self.provider_clt), action=self.action(),
+            amount=device_amount(self.amount(), self.provider_clt), action=self.action(),
             date=self.date.strftime("%x"))
 
     def action(self):

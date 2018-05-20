@@ -28,21 +28,31 @@ def check_befor_update_payment(pay):
     return True
 
 
-def device(value, provider, dvs=None):
+def device_amount(value, provider=None, dvs=None, aftergam=2):
 
+    from Common.models import Organization
+    from configuration import Config
     from models import ProviderOrClient
+
     if dvs:
-        return "{} {}".format(formatted_number(value), dvs)
-    try:
-        if isinstance(provider, int):
+        return "{} {}".format(formatted_number(value, aftergam=aftergam), dvs)
+
+    organ = Organization().get(id=1)
+
+    if not Config.DEVISE_PEP_PROV or not provider:
+        dvs = organ.DEVISE.get(organ.devise)
+    else:
+        if isinstance(provider, str):
+            dvs = organ.DEVISE.get(organ.devise)
+        elif isinstance(provider, int):
             provider = ProviderOrClient().get(id=int(provider))
+            dvs = provider.DEVISE.get(provider.devise)
         else:
             provider = provider
-    except Exception as e:
-        print(e)
-    d = provider.DEVISE[provider.devise]
-    v = formatted_number(value)
-    if provider.devise == provider.USA:
-        return "{d}{v}".format(v=v, d=d)
+            dvs = provider.DEVISE.get(provider.devise)
+
+    v = formatted_number(value, aftergam=aftergam)
+    if dvs == "$":
+        return "{d}{v}".format(v=v, d=dvs)
     else:
-        return "{v} {d}".format(v=v, d=d)
+        return "{v}{d}".format(v=v, d=dvs)

@@ -13,7 +13,6 @@ from configuration import Config
 # from ui.menutoolbar import MenuToolBar
 from ui.menubar import MenuBar
 from ui.debt_manager import DebtsViewWidget
-from ui.debt_manager_md import DebtsMDViewWidget
 
 
 class MainWindow(FMainWindow):
@@ -29,8 +28,6 @@ class MainWindow(FMainWindow):
         # self.addToolBar(Qt.LeftToolBarArea, self.toolbar)
 
         self.page = DebtsViewWidget
-        if Config.DEVISEPEPROV:
-            self.page = DebtsMDViewWidget
 
         self.change_context(self.page)
 

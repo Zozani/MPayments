@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # maintainer: Fad
-from __future__ import (
-    unicode_literals, absolute_import, division, print_function)
-
 
 from PyQt4.QtGui import (
     QVBoxLayout, QDialog, QTextEdit, QFormLayout, QComboBox)
@@ -15,11 +12,6 @@ import peewee
 from models import ProviderOrClient
 
 from configuration import Config
-
-try:
-    unicode
-except:
-    unicode = str
 
 
 class EditOrAddClientOrProviderDialog(QDialog, FWidget):
@@ -68,7 +60,7 @@ class EditOrAddClientOrProviderDialog(QDialog, FWidget):
         formbox = QFormLayout()
         formbox.addRow(FormLabel(u"Nom complete : *"), self.nameField)
 
-        if Config.DEVISEPEPROV:
+        if Config.DEVISE_PEP_PROV:
             formbox.addRow(FormLabel(u"Devise :"), self.box_devise)
 
         if not self.new:
@@ -93,17 +85,17 @@ class EditOrAddClientOrProviderDialog(QDialog, FWidget):
             return
 
         prov_clt = self.prov_clt
-        prov_clt.name = unicode(self.nameField.text())
+        prov_clt.name = str(self.nameField.text())
 
-        if Config.DEVISEPEPROV:
+        if Config.DEVISE_PEP_PROV:
             prov_clt.devise = str(self.box_devise.currentText().split()[1])
 
         if not self.new:
             if phone != "":
                 prov_clt.phone = int(phone)
-            prov_clt.email = unicode(self.email.text())
-            prov_clt.legal_infos = unicode(self.legal_infos.text())
-            prov_clt.address = unicode(self.address.toPlainText())
+            prov_clt.email = str(self.email.text())
+            prov_clt.legal_infos = str(self.legal_infos.text())
+            prov_clt.address = str(self.address.toPlainText())
 
         try:
             prov_clt.save()

@@ -3,10 +3,12 @@ def make_migrate():
     print("MIGRATION")
     from Common.models import migrator
 
-    from playhouse.migrate import migrate, CharField, FloatField
+    from playhouse.migrate import migrate, CharField, FloatField, IntegerField
 
     migrations = [('ProviderOrClient', 'devise', CharField(default="xof")),
-                  ('Payment', 'weight', FloatField(default="0"))]
+                  ('ProviderOrClient', 'phone', IntegerField(null=True)),
+                  ('Payment', 'weight', FloatField(null=True))
+                  ]
 
     for x, y, z in migrations:
         try:

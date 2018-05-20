@@ -9,7 +9,7 @@ from __future__ import (
 from PyQt4.QtCore import QDate
 from PyQt4.QtGui import (QVBoxLayout, QDialog, QTextEdit, QFormLayout)
 
-# from configuration import Config
+from configuration import Config
 
 from Common.ui.util import check_is_empty, date_to_datetime
 from Common.ui.common import (FWidget, Button_save, FormLabel,
@@ -70,7 +70,7 @@ class EditOrAddPaymentrDialog(QDialog, FWidget):
         formbox = QFormLayout()
         formbox.addRow(FormLabel(u"Date : *"), self.payment_date_field)
         formbox.addRow(FormLabel(u"Montant : *"), self.amount_field)
-        if self.type_ == Payment.DEBIT:
+        if self.type_ == Payment.DEBIT and Config.CISS:
             formbox.addRow(FormLabel(u"Poids (Kg) : *"),
                            self.payment_weight_field)
         formbox.addRow(FormLabel(u"Libelle :"), self.libelle_field)
@@ -104,10 +104,11 @@ class EditOrAddPaymentrDialog(QDialog, FWidget):
         elif self.type_ == Payment.DEBIT:
             payment.debit = amount
 
-            if check_is_empty(self.payment_weight_field):
-                return
-            payment.weight = float(unicode(self.payment_weight_field.text(
-            ).replace(",", ".").replace(" ", "").replace('\xa0', '')))
+            if Config.CISS:
+                if check_is_empty(self.payment_weight_field):
+                    return
+                payment.weight = float(unicode(self.payment_weight_field.text(
+                ).replace(",", ".").replace(" ", "").replace('\xa0', '')))
         try:
             payment.save()
             self.close()

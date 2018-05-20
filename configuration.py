@@ -7,7 +7,7 @@ from __future__ import (unicode_literals, absolute_import, division,
 import os
 # from static import Constants
 from Common.cstatic import CConstants
-# from Common.models import Organization
+from models import Payment
 
 ROOT_DIR = os.path.dirname(os.path.abspath('__file__'))
 
@@ -24,8 +24,13 @@ class Config(CConstants):
     # ------------------------- Organisation --------------------------#
 
     DEBUG = False
-    DEVISEPEPROV = True
-    DEVISEPEPROV = False
+    # Cise app
+    CISS = True
+    # CISS = False
+    SERV = False
+
+    # DEVISE_PEP_PROV = True
+    DEVISE_PEP_PROV = False
 
     # des_image_record = "static/img_prod"
     ARMOIRE = "img_prod"
@@ -48,11 +53,4 @@ class Config(CConstants):
     APP_LOGO = os.path.join(img_media, "logo.png")
     APP_LOGO_ICO = os.path.join(img_media, "logo.ico")
 
-    # org = Organization.get(id=1)
-    # NAME_ORGA = org.name_orga
-    # CONTACT_ORGA = u"Bamako-Rep. du Mali"
-    # TEL_ORGA = org.phone
-    # ADRESS_ORGA = org.adress_org
-    # BP = org.bp
-    # EMAIL_ORGA = org.email_org
-    # DEVISE_M = org.devise
+    list_models = [Payment]
