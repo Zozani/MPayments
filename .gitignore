@@ -6,3 +6,5 @@ LICENCE
 Movements.pdf
 *.db
 *.old
+*.pyd
+dist/
