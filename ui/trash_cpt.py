@@ -28,16 +28,16 @@ from configuration import Config
 ALL_CONTACTS = "TOUS"
 
 
-class DebtsViewWidget(FWidget):
+class DebtsTrashViewWidget(FWidget):
 
     """ Shows the home page  """
 
     def __init__(self, parent=0, *args, **kwargs):
-        super(DebtsViewWidget, self).__init__(parent=parent,
-                                              *args, **kwargs)
+        super(DebtsTrashViewWidget, self).__init__(parent=parent,
+                                                   *args, **kwargs)
         self.parent = parent
         self.parentWidget().setWindowTitle(
-            Config.APP_NAME + u" Gestion des dettes")
+            Config.APP_NAME + u" Gestion des element supprimer")
 
         self.title = u"Movements"
 
@@ -54,26 +54,18 @@ class DebtsViewWidget(FWidget):
         self.button = Button(u"Ok")
         self.button.clicked.connect(self.refresh_period)
 
-        self.btt_pdf_export = BttExportPDF("")
-        self.btt_pdf_export.clicked.connect(self.export_pdf)
-        self.btt_xlsx_export = BttExportXLSX("")
-        self.btt_xlsx_export.clicked.connect(self.export_xlsx)
-        self.add_btt = Button("Créditer")
+        self.add_btt = Button("Supprimer")
         self.add_btt.setEnabled(False)
-        self.add_btt.clicked.connect(self.add_payment)
-        self.add_btt.setMaximumWidth(200)
+        self.add_btt.clicked.connect(self.suppression)
+        # self.add_btt.setMaximumWidth(200)
+        self.add_btt.setMaximumHeight(90)
         self.add_btt.setIcon(QIcon(
-            "{img_media}in.png".format(img_media=Config.img_media)))
-        self.sub_btt = Button("Débiter")
+            "{img_media}del.png".format(img_media=Config.img_media)))
+        self.sub_btt = Button("Restorer")
         self.sub_btt.setEnabled(False)
-        self.sub_btt.clicked.connect(self.sub_payment)
-        self.sub_btt.setMaximumWidth(200)
-        self.sub_btt.setIcon(QIcon(
-            u"{img_media}out.png".format(img_media=Config.img_media)))
-        self.add_prov_btt = Button("+ Compte")
-        self.add_prov_btt.setMaximumHeight(60)
-        self.add_prov_btt.clicked.connect(self.add_prov_or_clt)
-        self.add_prov_btt.setMaximumWidth(300)
+        self.sub_btt.clicked.connect(self.restoration)
+        # self.sub_btt.setMaximumWidth(100)
+        self.sub_btt.setMaximumHeight(90)
 
         editbox = QGridLayout()
         editbox.addWidget(self.label_owner, 0, 0)
@@ -81,7 +73,6 @@ class DebtsViewWidget(FWidget):
         editbox.addWidget(self.sub_btt, 0, 3)
         editbox.addWidget(self.add_btt, 0, 4)
         # editbox.addWidget(self.btt_pdf_export, 1, 5)
-        editbox.addWidget(self.btt_xlsx_export, 1, 6)
 
         self.table_provid_clt = ProviderOrClientTableWidget(parent=self)
 
@@ -96,7 +87,6 @@ class DebtsViewWidget(FWidget):
         self.splitter_left = QSplitter(Qt.Vertical)
         self.splitter_left.addWidget(self.search_field)
         self.splitter_left.addWidget(self.table_provid_clt)
-        self.splitter_left.addWidget(self.add_prov_btt)
 
         self.splt_clt = QSplitter(Qt.Vertical)
         self.splt_clt.addWidget(self.splt_add)
@@ -118,27 +108,15 @@ class DebtsViewWidget(FWidget):
     def search(self):
         self.table_provid_clt.refresh_(self.search_field.text())
 
-    def add_prov_or_clt(self):
-        self.parent.open_dialog(EditOrAddClientOrProviderDialog, modal=True,
-                                prov_clt=None, table_p=self.table_provid_clt)
+    def suppression(self):
+        provid_clt_id = self.table_provid_clt.provid_clt_id
+        ProviderOrClient.get(id=provid_clt_id).delete_permanate()
+        self.table_provid_clt.refresh_()
 
-    def export_pdf(self):
-        from Common.exports_pdf import export_dynamic_data
-        export_dynamic_data(self.table.dict_data())
-
-    def export_xlsx(self):
-        from Common.exports_xlsx import export_dynamic_data
-        export_dynamic_data(self.table.dict_data())
-
-    def add_payment(self):
-        self.open_dialog(
-            EditOrAddPaymentrDialog, modal=True,
-            payment=None, type_=Payment.CREDIT, table_p=self.table)
-
-    def sub_payment(self):
-        self.open_dialog(
-            EditOrAddPaymentrDialog, modal=True,
-            payment=None, type_=Payment.DEBIT, table_p=self.table)
+    def restoration(self):
+        provid_clt_id = self.table_provid_clt.provid_clt_id
+        ProviderOrClient.get(id=provid_clt_id).restore_data()
+        self.table_provid_clt.refresh_()
 
     def display_balance(self, amount_text):
         return """ <h2>Solde du {} = <b>{}</b></h2>
@@ -159,36 +137,13 @@ class ProviderOrClientTableWidget(QListWidget):
         self.refresh_()
         # self.setStyleSheet("QListWidget::item { border-bottom: 1px; }")
 
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(self.popup)
-
-    def popup(self, pos):
-        from ui.deleteview_cpt import DeleteViewWidget
-        row = self.selectionModel().selection().indexes()[0].row()
-        if row < 1:
-            return
-        menu = QMenu()
-        editaction = menu.addAction("Modifier l'info.")
-        delaction = menu.addAction("Supprimer ce compte")
-        action = menu.exec_(self.mapToGlobal(pos))
-
-        provid_clt = ProviderOrClient.get(
-            ProviderOrClient.name == self.item(row).text())
-        if action == editaction:
-            self.parent.open_dialog(
-                EditOrAddClientOrProviderDialog, modal=True,
-                prov_clt=provid_clt, table_p=self)
-        if action == delaction:
-            self.parent.open_dialog(DeleteViewWidget, modal=True,
-                                    table_p=self, obj=provid_clt)
-
     def refresh_(self, provid_clt=None):
         """ Rafraichir la liste des provid_cltes"""
         self.clear()
         self.addItem(ProviderOrClientQListWidgetItem(ALL_CONTACTS))
         qs = ProviderOrClient.select().where(
             ProviderOrClient.type_ == ProviderOrClient.CLT,
-            ProviderOrClient.deleted == False)
+            ProviderOrClient.deleted == True)
         if provid_clt:
             qs = qs.where(ProviderOrClient.name.contains(provid_clt))
         for provid_clt in qs:
@@ -196,7 +151,6 @@ class ProviderOrClientTableWidget(QListWidget):
 
     def handleClicked(self):
 
-        self.parent.btt_xlsx_export.setEnabled(False)
         self.provid_clt = self.currentItem()
         self.provid_clt_id = self.provid_clt.provid_clt_id
 
@@ -259,8 +213,8 @@ class RapportTableWidget(FTableWidget):
 
         self.hheaders = [
             "Date", "Libelle opération", "Débit", "Crédit", "Solde", ""]
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(self.popup)
+        # self.setContextMenuPolicy(Qt.CustomContextMenu)
+        # self.customContextMenuRequested.connect(self.popup)
 
         self.parent = parent
 
@@ -312,31 +266,29 @@ class RapportTableWidget(FTableWidget):
         self.data = [(pay.date, pay.libelle, pay.debit,
                       pay.credit, pay.balance, pay.id) for pay in qs.iterator()]
 
-    def popup(self, pos):
+    # def popup(self, pos):
 
-        from ui.deleteview import DeleteViewWidget
-        # from data_helper import check_befor_update_payment
+    #     from ui.deleteview import DeleteViewWidget
+    #     # from data_helper import check_befor_update_payment
 
-        if (len(self.data) - 1) < self.selectionModel().selection().indexes(
-        )[0].row():
-            return False
-        menu = QMenu()
-        editaction = menu.addAction("Modifier cette ligne")
-        delaction = menu.addAction("Supprimer cette ligne")
-        action = menu.exec_(self.mapToGlobal(pos))
-        row = self.selectionModel().selection().indexes()[0].row()
-        payment = Payment.get(id=self.data[row][-1])
-        if action == editaction:
-            self.parent.open_dialog(EditOrAddPaymentrDialog, modal=True,
-                                    payment=payment, table_p=self)
+    #     if (len(self.data) - 1) < self.selectionModel().selection().indexes(
+    #     )[0].row():
+    #         return False
+    #     menu = QMenu()
+    #     editaction = menu.addAction("Modifier cette ligne")
+    #     delaction = menu.addAction("Supprimer cette ligne")
+    #     action = menu.exec_(self.mapToGlobal(pos))
+    #     row = self.selectionModel().selection().indexes()[0].row()
+    #     payment = Payment.get(id=self.data[row][-1])
+    #     if action == editaction:
+    #         self.parent.open_dialog(EditOrAddPaymentrDialog, modal=True,
+    #                                 payment=payment, table_p=self)
 
-        if action == delaction:
-            self.parent.open_dialog(DeleteViewWidget, modal=True,
-                                    table_p=self, obj=payment)
+    #     if action == delaction:
+    #         self.parent.open_dialog(DeleteViewWidget, modal=True,
+    #                                 table_p=self, obj=payment)
 
     def extend_rows(self):
-        self.parent.btt_pdf_export.setEnabled(True)
-        self.parent.btt_xlsx_export.setEnabled(True)
         nb_rows = self.rowCount()
         self.setRowCount(nb_rows + 1)
         self.setSpan(nb_rows + 2, 2, 2, 4)
@@ -394,8 +346,8 @@ class RapportCISSTableWidget(FTableWidget):
 
         self.hheaders = [
             "Date", "Libelle opération", "Poids (kg)", "Débit", "Crédit", "Solde", ""]
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(self.popup)
+        # self.setContextMenuPolicy(Qt.CustomContextMenu)
+        # self.customContextMenuRequested.connect(self.popup)
 
         self.parent = parent
 
@@ -444,31 +396,10 @@ class RapportCISSTableWidget(FTableWidget):
             pay.date, pay.libelle, pay.weight, pay.debit,
             pay.credit, pay.balance, pay.id) for pay in qs.iterator()]
 
-    def popup(self, pos):
-
-        from ui.deleteview import DeleteViewWidget
-        # from data_helper import check_befor_update_payment
-
-        if (len(self.data) - 1) < self.selectionModel().selection().indexes(
-        )[0].row():
-            return False
-        menu = QMenu()
-        editaction = menu.addAction("Modifier cette ligne")
-        delaction = menu.addAction("Supprimer cette ligne")
-        action = menu.exec_(self.mapToGlobal(pos))
-        row = self.selectionModel().selection().indexes()[0].row()
-        payment = Payment.get(id=self.data[row][-1])
-        if action == editaction:
-            self.parent.open_dialog(EditOrAddPaymentrDialog, modal=True,
-                                    payment=payment, table_p=self)
-        if action == delaction:
-            self.parent.open_dialog(DeleteViewWidget, modal=True,
-                                    table_p=self, obj=payment)
-
     def extend_rows(self):
 
-        self.parent.btt_pdf_export.setEnabled(True)
-        self.parent.btt_xlsx_export.setEnabled(True)
+        # self.parent.btt_pdf_export.setEnabled(True)
+        # self.parent.btt_xlsx_export.setEnabled(True)
         nb_rows = self.rowCount()
         self.setRowCount(nb_rows + 1)
         self.setSpan(nb_rows + 2, 2, 2, 4)

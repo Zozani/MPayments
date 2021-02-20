@@ -6,6 +6,7 @@ from __future__ import (unicode_literals, absolute_import, division,
                         print_function)
 
 from models import (Payment, ProviderOrClient)
+from playhouse.migrate import BooleanField, CharField, IntegerField, ForeignKeyField
 
 from Common.cdatabase import AdminDatabase
 
@@ -19,3 +20,8 @@ class Setup(AdminDatabase):
 
         self.LIST_CREAT.append(Payment)
         self.LIST_CREAT.append(ProviderOrClient)
+
+        self.LIST_MIGRATE += [
+            ('Organization', 'logo_org', CharField(null=True)),
+            ('ProviderOrClient', 'deleted', BooleanField(default=False)),
+        ]

@@ -34,5 +34,4 @@ def main():
 
 if __name__ == '__main__':
     if cmain():
-        make_migrate()
-        main()
+        sys.exit(app.exec_())

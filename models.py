@@ -51,15 +51,30 @@ class ProviderOrClient(BaseModel):
         FileJoin, null=True, related_name='file_joins_pictures',
         verbose_name=("image de la societe"))
     devise = CharField(choices=DEVISE, default=XOF)
+    deleted = BooleanField(default=False)
 
     def payments(self):
         return Payment.select().where(Payment.provider_clt == self)
+
+    def delete_data(self):
+        self.deleted = True
+        self.save()
+
+    def restore_data(self):
+        self.deleted = False
+        self.save()
+
+    def delete_permanate(self):
+        self.delete_instance()
 
     def is_indebted(self):
         flag = False
         if self.last_remaining() > 0:
             flag = True
         return flag
+
+    def display_name(self):
+        return self.__str__()
 
     def last_payment(self):
         try:
@@ -107,7 +122,7 @@ class Payment(BaseModel):
     credit = FloatField(verbose_name=("Crédit"))
     libelle = CharField(verbose_name=("Libelle"), null=True)
     balance = FloatField(verbose_name=("Solde"))
-    weight = FloatField(verbose_name=("Poids"), null=True)
+    weight = FloatField(verbose_name=("Poids"), null=True, default=0)
     type_ = CharField(choices=DC)
     deleted = BooleanField(default=False)
     status = BooleanField(default=False)

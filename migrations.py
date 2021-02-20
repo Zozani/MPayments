@@ -7,7 +7,6 @@ def make_migrate():
 
     migrations = [('ProviderOrClient', 'devise', CharField(default="xof")),
                   ('ProviderOrClient', 'phone', IntegerField(null=True)),
-                  ('Organization', 'logo_org', CharField(null=True))
                   ('Payment', 'weight', FloatField(null=True))
                   ]
 
@@ -15,5 +14,5 @@ def make_migrate():
         try:
             migrate(migrator.add_column(x, y, z))
             print(x, " : ", y)
-        except:
-            pass
+        except Exception as e:
+            print(e)

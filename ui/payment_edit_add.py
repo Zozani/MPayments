@@ -108,7 +108,7 @@ class EditOrAddPaymentrDialog(QDialog, FWidget):
                 if check_is_empty(self.payment_weight_field):
                     return
                 payment.weight = float(unicode(self.payment_weight_field.text(
-                ).replace(",", ".").replace(" ", "").replace('\xa0', '')))
+                ).replace(",", ".").replace(" ", "").replace('\xa0', ''))) or 0
         try:
             payment.save()
             self.close()
@@ -117,5 +117,5 @@ class EditOrAddPaymentrDialog(QDialog, FWidget):
                     type=self.type_, lib=libelle), "success")
             self.table_p.refresh_(provid_clt_id=self.pro_clt_id)
         except Exception as e:
-            # print("SAVE Payment : ", e)
+            print("SAVE Payment : ", e)
             self.parent.Notify(e, "error")

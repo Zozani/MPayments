@@ -22,6 +22,7 @@ class MenuBar(FMenuBar, FWidget):
         self.parent = parent
 
         from ui.statistics import StatisticsViewWidget
+        from ui.trash_cpt import DebtsTrashViewWidget
         from ui.debt_manager import DebtsViewWidget
 
         menu = [
@@ -29,6 +30,8 @@ class MenuBar(FMenuBar, FWidget):
              False, "shortcut": "Ctrl+S", "goto": StatisticsViewWidget},
             {"name": u"Versements", "icon": 'logo', "admin":
              False, "shortcut": "Ctrl+V", "goto": DebtsViewWidget},
+            {"name": u"Poubelle", "icon": 'logo', "del":
+             False, "shortcut": "Ctrl+P", "goto": DebtsTrashViewWidget},
         ]
 
         # Menu aller à
