@@ -9,59 +9,56 @@ from Common.ui.util import check_is_empty, field_error
 from Common.ui.common import (
     FWidget, Button, FormLabel, LineEdit, IntLineEdit)
 import peewee
-from models import ProviderOrClient
+from models import CooperativeMember
 
 from configuration import Config
 
 
-class EditOrAddClientOrProviderDialog(QDialog, FWidget):
+class EditOrAddMemberDialog(QDialog, FWidget):
 
-    def __init__(self, table_p, parent, prov_clt=None, *args, **kwargs):
+    def __init__(self, table_p, parent, coop_member=None, *args, **kwargs):
         FWidget.__init__(self, parent, *args, **kwargs)
 
         self.table_p = table_p
-        self.prov_clt = prov_clt
+        self.coop_member = coop_member
         self.parent = parent
-        if self.prov_clt:
+        if self.coop_member:
             self.new = False
-            self.title = u"Modification de {} {}".format(self.prov_clt.type_,
-                                                         self.prov_clt.name)
+            self.title = u"Modification de {} {}".format(self.coop_member.type_,
+                                                         self.coop_member.name)
             self.succes_msg = u"{} a été bien mise à jour".format(
-                self.prov_clt.type_)
+                self.coop_member.type_)
         else:
             self.new = True
             self.succes_msg = u"Client a été bien enregistré"
             self.title = u"Création d'un nouvel client"
-            self.prov_clt = ProviderOrClient()
+            self.coop_member = CooperativeMember()
         self.setWindowTitle(self.title)
 
         vbox = QVBoxLayout()
-        # vbox.addWidget(FPageTitle(u"Utilisateur: %s " % self.prov_clt.name))
-        self.liste_devise = ProviderOrClient.DEVISE
+        # vbox.addWidget(FPageTitle(u"Utilisateur: %s " % self.coop_member.name))
+        self.liste_devise = []
         # Combobox widget
         self.box_devise = QComboBox()
         for index, value in enumerate(self.liste_devise):
             self.box_devise.addItem(
                 "{} {}".format(self.liste_devise[value], value))
-            if self.prov_clt.devise == value:
+            if self.coop_member.devise == value:
                 self.box_devise.setCurrentIndex(index)
 
-        if self.prov_clt.phone:
-            phone = str(self.prov_clt.phone)
+        if self.coop_member.phone:
+            phone = str(self.coop_member.phone)
         else:
             phone = ""
-        self.nameField = LineEdit(self.prov_clt.name)
+        self.nameField = LineEdit(self.coop_member.name)
         self.phone_field = IntLineEdit(phone)
         # self.phone_field.setInputMask("D9.99.99.99")
-        self.legal_infos = LineEdit(self.prov_clt.legal_infos)
-        self.address = QTextEdit(self.prov_clt.address)
-        self.email = LineEdit(self.prov_clt.email)
+        self.legal_infos = LineEdit(self.coop_member.legal_infos)
+        self.address = QTextEdit(self.coop_member.address)
+        self.email = LineEdit(self.coop_member.email)
 
         formbox = QFormLayout()
         formbox.addRow(FormLabel(u"Nom complete : *"), self.nameField)
-
-        if Config.DEVISE_PEP_PROV:
-            formbox.addRow(FormLabel(u"Devise :"), self.box_devise)
 
         if not self.new:
             formbox.addRow(FormLabel(u"Tel: *"), self.phone_field)
@@ -84,25 +81,25 @@ class EditOrAddClientOrProviderDialog(QDialog, FWidget):
         if check_is_empty(self.nameField):
             return
 
-        prov_clt = self.prov_clt
-        prov_clt.name = str(self.nameField.text())
+        coop_member = self.coop_member
+        coop_member.name = str(self.nameField.text())
 
         if Config.DEVISE_PEP_PROV:
-            prov_clt.devise = str(self.box_devise.currentText().split()[1])
+            coop_member.devise = str(self.box_devise.currentText().split()[1])
 
         if not self.new:
             if phone != "":
-                prov_clt.phone = int(phone)
-            prov_clt.email = str(self.email.text())
-            prov_clt.legal_infos = str(self.legal_infos.text())
-            prov_clt.address = str(self.address.toPlainText())
+                coop_member.phone = int(phone)
+            coop_member.email = str(self.email.text())
+            coop_member.legal_infos = str(self.legal_infos.text())
+            coop_member.address = str(self.address.toPlainText())
 
         try:
-            prov_clt.save()
+            coop_member.save()
             self.close()
             self.table_p.refresh_()
             self.parent.Notify(u"Le Compte %s a été mise à jour" %
-                               prov_clt.name, "success")
+                               coop_member.name, "success")
         except peewee.IntegrityError as e:
             # print("IntegrityError ", e)
             field_error(

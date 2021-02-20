@@ -200,7 +200,7 @@ class ProviderOrClientTableWidget(QListWidget):
         else:
 
             if Config.DEVISE_PEP_PROV:
-                print("DEVISE_PEP_PROV handleClicked")
+                # print("DEVISE_PEP_PROV handleClicked")
                 return
             self.parent.sub_btt.setEnabled(False)
             self.parent.add_btt.setEnabled(False)
@@ -503,8 +503,7 @@ class RapportCISSTableWidget(FTableWidget):
             'headers': self.hheaders[:-1],
             'data': self.data,
             "extend_rows": [(1, self.label_mov_tt),
-                            (2, device_amount(
-                                self.totals_weight, dvs="Kg", aftergam=3)),
+                            (2, device_amount(self.totals_weight, dvs="F", aftergam=3)),
                             (3, self.totals_debit),
                             (4, self.totals_credit), ],
             'sheet': title,
@@ -513,8 +512,8 @@ class RapportCISSTableWidget(FTableWidget):
             'format_money': ["C:C", "D:D", "E:E", ],
             'exclude_row': len(self.data) - 1,
             'date': self.parent.now,
-            'others': [("A7", "C7", "Compte : {}".format(self.provider_clt)),
-                       ("A8", "B8", "Solde au {}: {}".format(
+            'others': [("A5", "C7", "Compte : {}".format(self.provider_clt)),
+                       ("A6", "B6", "Solde au {}: {}".format(
                         self.parent.now, device_amount(
                             self.balance_tt, self.provider_clt))), ],
         }

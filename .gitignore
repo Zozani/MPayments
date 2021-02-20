@@ -5,3 +5,6 @@ LICENCE
 *.xlsx
 Movements.pdf
 *.old
+versements-30-01-2018.pdf
+dist/
+*.exe

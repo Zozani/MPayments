@@ -184,5 +184,5 @@ class Payment(BaseModel):
                 Payment.deleted == False,
                 Payment.date < self.date).order_by(Payment.date.desc()).get()
         except Exception as e:
-            print("last_balance_payment", e)
+            # print("last_balance_payment", e)
             return None

@@ -6,7 +6,7 @@
 
   !define MUI_PRODUCT "MPayments"
   !define MUI_FILE "main"
-  !define MUI_VERSION "18.01.4 CISS"
+  !define MUI_VERSION "20.0 BK"
   !define MUI_BRANDINGTEXT "${MUI_PRODUCT} ${MUI_VERSION}"
   !define IMAGES "images"
   !define CIMAGES "cimages"

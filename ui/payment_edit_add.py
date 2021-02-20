@@ -12,7 +12,7 @@ from PyQt4.QtGui import (QVBoxLayout, QDialog, QTextEdit, QFormLayout)
 from configuration import Config
 
 from Common.ui.util import check_is_empty, date_to_datetime
-from Common.ui.common import (FWidget, Button_save, FormLabel,
+from Common.ui.common import (FWidget, ButtonSave, FormLabel,
                               FloatLineEdit, FormatDate)
 
 from models import Payment
@@ -75,7 +75,7 @@ class EditOrAddPaymentrDialog(QDialog, FWidget):
                            self.payment_weight_field)
         formbox.addRow(FormLabel(u"Libelle :"), self.libelle_field)
 
-        butt = Button_save(u"Enregistrer")
+        butt = ButtonSave(u"Enregistrer")
         butt.clicked.connect(self.save_edit)
         formbox.addRow("", butt)
 
@@ -84,7 +84,7 @@ class EditOrAddPaymentrDialog(QDialog, FWidget):
 
     def save_edit(self):
         ''' add operation '''
-        print("saving")
+        # print("saving")
         if check_is_empty(self.amount_field):
             return
         self.pro_clt_id = self.table_p.provid_clt_id
@@ -117,5 +117,5 @@ class EditOrAddPaymentrDialog(QDialog, FWidget):
                     type=self.type_, lib=libelle), "success")
             self.table_p.refresh_(provid_clt_id=self.pro_clt_id)
         except Exception as e:
-            print("SAVE Payment : ", e)
+            # print("SAVE Payment : ", e)
             self.parent.Notify(e, "error")

@@ -25,10 +25,10 @@ class Config(CConstants):
 
     DEBUG = False
     # Cise app
-    CISS = True
-    # CISS = False
+    # CISS = True
+    CISS = False
     SERV = False
-
+    LSE = True
     # DEVISE_PEP_PROV = True
     DEVISE_PEP_PROV = False
 
