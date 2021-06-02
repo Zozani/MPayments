@@ -27,7 +27,7 @@ class Config(CConstants):
     # Cise app
     # CISS = True
     CISS = False
-    SERV = False
+    SERV = True
     LSE = True
     # DEVISE_PEP_PROV = True
     DEVISE_PEP_PROV = False
@@ -47,10 +47,11 @@ class Config(CConstants):
 
     pdf_source = "pdf_source.pdf"
     APP_NAME = "MPayments"
-    APP_VERSION = 1
+    APP_VERSION = 2
     APP_DATE = u"11/2017"
     img_media = os.path.join(os.path.join(ROOT_DIR, "static"), "images/")
     APP_LOGO = os.path.join(img_media, "logo.png")
     APP_LOGO_ICO = os.path.join(img_media, "logo.ico")
-
+    BASE_URL = "http://file-repo.ml"
+    BASE_URL = "http://192.168.1.2:8000"
     list_models = [Payment]
