@@ -1,17 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # maintainer: Fad
-from __future__ import (
-    unicode_literals, absolute_import, division, print_function)
+from __future__ import unicode_literals, absolute_import, division, print_function
 
-from PyQt4.QtGui import (QVBoxLayout, QHBoxLayout, QGridLayout, QDialog)
+from PyQt4.QtGui import QVBoxLayout, QHBoxLayout, QGridLayout, QDialog
 from PyQt4.QtCore import Qt
 
 from Common.ui.common import FWidget, FPageTitle, Button, FLabel
 
 
 class DeleteViewWidget(QDialog, FWidget):
-
     def __init__(self, table_p, obj, parent, *args, **kwargs):
         QDialog.__init__(self, parent, *args, **kwargs)
 

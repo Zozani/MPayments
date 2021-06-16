@@ -43,6 +43,7 @@ class Target(object):
     def __setitem__(self, name, value):
         self.__dict__[name] = value
 
+
 RT_BITMAP = 2
 RT_MANIFEST = 24
 
@@ -89,19 +90,22 @@ main_app = Target(
     # file_description = "File Description",
     # comments = "Some Comments",
     # internal_name = "spam",
-
     script=Config.NAME_MAIN,  # path of the main script
-
     # Allows to specify the basename of the executable, if different from 'main_app'
     # dest_base = "main_app",
-
     # Icon resources:[(resource_id, path to .ico file), ...]
     # icon_resources=[(1, r"main_app.ico")]
-
-    other_resources=[(RT_MANIFEST, 1, (manifest_template % dict(prog=Config.NAME_MAIN, level="asInvoker")).encode("utf-8")),
-                     # for bitmap resources, the first 14 bytes must be skipped when reading the file:
-                     #                    (RT_BITMAP, 1, open("bitmap.bmp", "rb").read()[14:]),
-                     ]
+    other_resources=[
+        (
+            RT_MANIFEST,
+            1,
+            (manifest_template % dict(prog=Config.NAME_MAIN, level="asInvoker")).encode(
+                "utf-8"
+            ),
+        ),
+        # for bitmap resources, the first 14 bytes must be skipped when reading the file:
+        #                    (RT_BITMAP, 1, open("bitmap.bmp", "rb").read()[14:]),
+    ],
 )
 
 
@@ -120,15 +124,15 @@ py2exe_options = dict(
 
 # Some options can be overridden by command line options...
 
-setup(name="name",
-      # console based executables
-      console=[main_app],
-
-      # windows subsystem executables (no console)
-      windows=[{'script': Config.NAME_MAIN, \
-                'icon_resources': [(0, Config.APP_LOGO_ICO)]}],
-
-      # py2exe options
-      zipfile=None,
-      options={"py2exe": py2exe_options, },
-      )
+setup(
+    name="name",
+    # console based executables
+    console=[main_app],
+    # windows subsystem executables (no console)
+    windows=[
+        {'script': Config.NAME_MAIN, 'icon_resources': [(0, Config.APP_LOGO_ICO)]}
+    ],
+    # py2exe options
+    zipfile=None,
+    options={"py2exe": py2exe_options},
+)

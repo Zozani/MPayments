@@ -3,13 +3,19 @@
 # vim: ai ts=4 sts=4 et sw=4 nu
 # maintainer: Fadiga
 
-from __future__ import (
-    unicode_literals, absolute_import, division, print_function)
+from __future__ import unicode_literals, absolute_import, division, print_function
 
 from datetime import datetime
 
-from peewee import (DateTimeField, CharField, IntegerField, FloatField,
-                    BooleanField, ForeignKeyField, TextField)
+from peewee import (
+    DateTimeField,
+    CharField,
+    IntegerField,
+    FloatField,
+    BooleanField,
+    ForeignKeyField,
+    TextField,
+)
 from Common.models import BaseModel, FileJoin, Owner
 from data_helper import device_amount
 
@@ -19,8 +25,8 @@ NOW = datetime.now()
 
 class ProviderOrClient(BaseModel):
 
-    """ Represents the company emmiting the invoices
-    """
+    """Represents the company emmiting the invoices"""
+
     # class Meta:
     #     order_by = ('name',)
 
@@ -31,25 +37,24 @@ class ProviderOrClient(BaseModel):
     USA = "dollar"
     XOF = "xof"
     EURO = "euro"
-    DEVISE = {
-        USA: "$",
-        XOF: "F",
-        EURO: "€"
-    }
+    DEVISE = {USA: "$", XOF: "F", EURO: "€"}
 
-    name = CharField(unique=True, verbose_name=("Nom de votre entreprise"))
-    address = TextField(
-        null=True, verbose_name=("Adresse principale de votre société"))
+    name = CharField(unique=True, verbose_name="Nom de votre entreprise")
+    address = TextField(null=True, verbose_name="Adresse principale de votre société")
     phone = IntegerField(
-        null=True, verbose_name=("Numero de téléphone de votre entreprise"))
+        null=True, verbose_name="Numero de téléphone de votre entreprise"
+    )
     email = CharField(
-        null=True, verbose_name=("Adresse électronique de votre entreprise"))
-    legal_infos = TextField(
-        null=True, verbose_name=("Informations légales"))
+        null=True, verbose_name="Adresse électronique de votre entreprise"
+    )
+    legal_infos = TextField(null=True, verbose_name="Informations légales")
     type_ = CharField(max_length=30, choices=TYPES, default=CLT)
     picture = ForeignKeyField(
-        FileJoin, null=True, related_name='file_joins_pictures',
-        verbose_name=("image de la societe"))
+        FileJoin,
+        null=True,
+        related_name='file_joins_pictures',
+        verbose_name="image de la societe",
+    )
     devise = CharField(choices=DEVISE, default=XOF)
     deleted = BooleanField(default=False)
 
@@ -78,9 +83,12 @@ class ProviderOrClient(BaseModel):
 
     def last_payment(self):
         try:
-            return Payment.select().where(
-                Payment.provider_client == self).order_by(
-                Payment.date.desc()).get()
+            return (
+                Payment.select()
+                .where(Payment.provider_client == self)
+                .order_by(Payment.date.desc())
+                .get()
+            )
         except:
             return None
 
@@ -105,7 +113,7 @@ class ProviderOrClient(BaseModel):
 
 class Payment(BaseModel):
 
-    """ docstring for Payment """
+    """docstring for Payment"""
 
     class Meta:
         order_by = ('date',)
@@ -115,14 +123,14 @@ class Payment(BaseModel):
 
     DC = [DEBIT, CREDIT]
 
-    owner = ForeignKeyField(Owner, verbose_name=("Utilisateur"))
+    owner = ForeignKeyField(Owner, verbose_name="Utilisateur")
     provider_clt = ForeignKeyField(ProviderOrClient)
-    date = DateTimeField(verbose_name=("Date"))
-    debit = FloatField(verbose_name=("Débit"))
-    credit = FloatField(verbose_name=("Crédit"))
-    libelle = CharField(verbose_name=("Libelle"), null=True)
-    balance = FloatField(verbose_name=("Solde"))
-    weight = FloatField(verbose_name=("Poids"), null=True, default=0)
+    date = DateTimeField(verbose_name="Date")
+    debit = FloatField(verbose_name="Débit")
+    credit = FloatField(verbose_name="Crédit")
+    libelle = CharField(verbose_name="Libelle", null=True)
+    balance = FloatField(verbose_name="Solde")
+    weight = FloatField(verbose_name="Poids", null=True, default=0)
     type_ = CharField(choices=DC)
     deleted = BooleanField(default=False)
     status = BooleanField(default=False)
@@ -132,16 +140,21 @@ class Payment(BaseModel):
 
     def __unicode__(self):
         return "Le {date} {type_} d'un montant de {amount}".format(
-            date=self.date.strftime(FDATE), type_=self.type_,
-            amount=self.amount(), lib=self.libelle)
+            date=self.date.strftime(FDATE),
+            type_=self.type_,
+            amount=self.amount(),
+            lib=self.libelle,
+        )
 
     def __str__(self):
         return self.__unicode__()
 
     def display_name(self):
         return "{amount} {action} le {date}.".format(
-            amount=device_amount(self.amount(), self.provider_clt), action=self.action(),
-            date=self.date.strftime("%x"))
+            amount=device_amount(self.amount(), self.provider_clt),
+            action=self.action(),
+            date=self.date.strftime("%x"),
+        )
 
     def action(self):
         return "Créditer" if self.type_ == self.CREDIT else "Débiter"
@@ -150,8 +163,9 @@ class Payment(BaseModel):
         """
         Calcul du balance en stock après une operation."""
         self.owner = Owner.get(Owner.islog == True)
-        previous_balance = float(self.last_balance_payment(
-        ).balance if self.last_balance_payment() else 0)
+        previous_balance = float(
+            self.last_balance_payment().balance if self.last_balance_payment() else 0
+        )
         if self.type_ == self.CREDIT:
             self.balance = previous_balance + float(self.credit)
             self.debit = 0
@@ -173,10 +187,15 @@ class Payment(BaseModel):
 
     def next_rpts(self):
         try:
-            return Payment.select().where(
-                Payment.provider_clt == self.provider_clt,
-                Payment.date > self.date,
-                Payment.deleted == False).order_by(Payment.date.asc())
+            return (
+                Payment.select()
+                .where(
+                    Payment.provider_clt == self.provider_clt,
+                    Payment.date > self.date,
+                    Payment.deleted == False,
+                )
+                .order_by(Payment.date.asc())
+            )
         except Exception as e:
             return None
             print("next_rpts ", e)
@@ -194,10 +213,16 @@ class Payment(BaseModel):
 
     def last_balance_payment(self):
         try:
-            return Payment.select().where(
-                Payment.provider_clt == self.provider_clt,
-                Payment.deleted == False,
-                Payment.date < self.date).order_by(Payment.date.desc()).get()
+            return (
+                Payment.select()
+                .where(
+                    Payment.provider_clt == self.provider_clt,
+                    Payment.deleted == False,
+                    Payment.date < self.date,
+                )
+                .order_by(Payment.date.desc())
+                .get()
+            )
         except Exception as e:
             # print("last_balance_payment", e)
             return None

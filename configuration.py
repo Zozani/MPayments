@@ -2,9 +2,9 @@
 # -*- encoding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 # maintainer: Fad
-from __future__ import (unicode_literals, absolute_import, division,
-                        print_function)
+from __future__ import unicode_literals, absolute_import, division, print_function
 import os
+
 # from static import Constants
 from Common.cstatic import CConstants
 from models import Payment
@@ -14,7 +14,7 @@ ROOT_DIR = os.path.dirname(os.path.abspath('__file__'))
 
 class Config(CConstants):
 
-    """ docstring for Config """
+    """docstring for Config"""
 
     DATEFORMAT = u'%d-%m-%Y'
 
@@ -47,11 +47,11 @@ class Config(CConstants):
 
     pdf_source = "pdf_source.pdf"
     APP_NAME = "MPayments"
-    APP_VERSION = 2
+    APP_VERSION = 1
     APP_DATE = u"11/2017"
     img_media = os.path.join(os.path.join(ROOT_DIR, "static"), "images/")
     APP_LOGO = os.path.join(img_media, "logo.png")
     APP_LOGO_ICO = os.path.join(img_media, "logo.ico")
     BASE_URL = "http://file-repo.ml"
-    BASE_URL = "http://192.168.1.2:8000"
+    BASE_URL = "http://192.168.6.6:8000"
     list_models = [Payment]
