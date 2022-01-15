@@ -101,8 +101,8 @@ class EditOrAddClientOrProviderDialog(QDialog, FWidget):
             prov_clt.save()
             self.close()
             self.table_p.refresh_()
-            self.parent.Notify(u"Le Compte %s a été mise à jour" %
-                               prov_clt.name, "success")
+            # self.parent.Notify(u"Le Compte %s a été mise à jour" %
+            #                    prov_clt.name, "success")
         except peewee.IntegrityError as e:
             # print("IntegrityError ", e)
             field_error(

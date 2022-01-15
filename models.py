@@ -64,12 +64,20 @@ class ProviderOrClient(BaseModel):
     def delete_data(self):
         self.deleted = True
         self.save()
+        for p in self.payments():
+            p.deleted = True
+            p.save()
 
     def restore_data(self):
         self.deleted = False
         self.save()
+        for p in self.payments():
+            p.deleted = False
+            p.save()
 
     def delete_permanate(self):
+        for p in self.payments():
+            p.deletes_data()
         self.delete_instance()
 
     def is_indebted(self):
