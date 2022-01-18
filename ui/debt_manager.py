@@ -3,20 +3,17 @@
 # maintainer: Fadiga
 
 
-from PyQt4.QtGui import (
+from PyQt5.QtGui import QIcon, QFont, QPixmap
+from PyQt5.QtWidgets import (
     QSplitter,
     QHBoxLayout,
-    QPixmap,
-    QFont,
     QListWidget,
     QListWidgetItem,
-    QIcon,
-    QMenu,
     QGridLayout,
+    QMenu,
 )
-
 from datetime import datetime
-from PyQt4.QtCore import Qt, QSize
+from PyQt5.QtCore import Qt, QSize
 
 from models import ProviderOrClient, Payment
 

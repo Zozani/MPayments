@@ -4,8 +4,10 @@
 
 from __future__ import unicode_literals, absolute_import, division, print_function
 
-from PyQt4.QtGui import QMessageBox, QIcon, QAction, QPixmap
-from PyQt4.QtCore import SIGNAL
+from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtWidgets import QAction
+
+# from PyQt5.QtCore import SIGNAL
 
 from configuration import Config
 from Common.ui.common import FWidget
@@ -25,22 +27,22 @@ class MenuBar(FMenuBar, FWidget):
 
         menu = [
             {
-                "name": u"Statistiques",
-                "icon": 'state',
+                "name": "Statistiques",
+                "icon": "state",
                 "admin": False,
                 "shortcut": "Ctrl+S",
                 "goto": StatisticsViewWidget,
             },
             {
-                "name": u"G. comptes",
-                "icon": 'compte',
+                "name": "G. comptes",
+                "icon": "compte",
                 "admin": False,
                 "shortcut": "Ctrl+V",
                 "goto": DebtsViewWidget,
             },
             {
-                "name": u"Poubelle",
-                "icon": 'del',
+                "name": "Poubelle",
+                "icon": "del",
                 "del": False,
                 "shortcut": "Ctrl+P",
                 "goto": DebtsTrashViewWidget,
@@ -48,17 +50,17 @@ class MenuBar(FMenuBar, FWidget):
         ]
 
         # Menu aller à
-        goto_ = self.addMenu(u"&Aller a")
+        goto_ = self.addMenu("&Aller a")
 
         for m in menu:
             el_menu = QAction(
-                QIcon("{}{}.png".format(Config.img_media, m.get('icon'))),
-                m.get('name'),
+                QIcon("{}{}.png".format(Config.img_media, m.get("icon"))),
+                m.get("name"),
                 self,
             )
             el_menu.setShortcut(m.get("shortcut"))
             self.connect(
-                el_menu, SIGNAL("triggered()"), lambda m=m: self.goto(m.get('goto'))
+                el_menu, SIGNAL("triggered()"), lambda m=m: self.goto(m.get("goto"))
             )
             goto_.addSeparator()
             goto_.addAction(el_menu)
@@ -72,12 +74,12 @@ class MenuBar(FMenuBar, FWidget):
         #     goto_.addAction(all_report)
 
         # Menu Aide
-        help_ = self.addMenu(u"Aide")
+        help_ = self.addMenu("Aide")
         help_.addAction(
             QIcon("{}help.png".format(Config.img_cmedia)), "Aide", self.goto_help
         )
         help_.addAction(
-            QIcon("{}info.png".format(Config.img_cmedia)), u"À propos", self.goto_about
+            QIcon("{}info.png".format(Config.img_cmedia)), "À propos", self.goto_about
         )
 
     def goto(self, goto):

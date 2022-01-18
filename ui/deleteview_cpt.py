@@ -1,22 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # maintainer: Fad
-from __future__ import (
-    unicode_literals, absolute_import, division, print_function)
+from __future__ import unicode_literals, absolute_import, division, print_function
 
-from PyQt4.QtGui import (QVBoxLayout, QHBoxLayout, QGridLayout, QDialog)
-from PyQt4.QtCore import Qt
+from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QGridLayout, QDialog
 
 from Common.ui.common import FWidget, FPageTitle, Button, FLabel
 
 
 class DeleteViewWidget(QDialog, FWidget):
-
     def __init__(self, table_p, obj, parent, *args, **kwargs):
         QDialog.__init__(self, parent, *args, **kwargs)
 
-        self.setWindowTitle(u"Confirmation de le suppression")
-        self.title = FPageTitle(u"Voulez vous vraiment le supprimer?")
+        self.setWindowTitle("Confirmation de le suppression")
+        self.title = FPageTitle("Voulez vous vraiment le supprimer?")
         self.obj = obj
         self.table_p = table_p
         self.parent = parent
@@ -30,11 +27,11 @@ class DeleteViewWidget(QDialog, FWidget):
         Button_hbox = QHBoxLayout()
 
         # Delete Button widget.
-        delete_but = Button(u"Supprimer")
+        delete_but = Button("Supprimer")
         Button_hbox.addWidget(delete_but)
         delete_but.clicked.connect(self.delete)
         # Cancel Button widget.
-        cancel_but = Button(u"Annuler")
+        cancel_but = Button("Annuler")
         Button_hbox.addWidget(cancel_but)
         cancel_but.clicked.connect(self.cancel)
 

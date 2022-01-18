@@ -6,7 +6,7 @@ import os
 import sys
 import py2exe
 
-sys.path.append(os.path.abspath('../'))
+sys.path.append(os.path.abspath("../"))
 
 from configuration import Config
 
@@ -14,9 +14,9 @@ from distutils.core import setup
 
 
 class Target(object):
-    '''Target is the baseclass for all executables that are created.
+    """Target is the baseclass for all executables that are created.
     It defines properties that are shared by all of them.
-    '''
+    """
 
     def __init__(self, **kw):
         self.__dict__.update(kw)
@@ -50,7 +50,7 @@ RT_MANIFEST = 24
 # A manifest which specifies the executionlevel
 # and windows common-controls library version 6
 
-manifest_template = '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+manifest_template = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
   <assemblyIdentity
     version="5.0.0"
@@ -82,7 +82,7 @@ manifest_template = '''<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     </dependentAssembly>
   </dependency>
 </assembly>
-'''
+"""
 
 main_app = Target(
     # We can extend or override the VersionInfo of the base class:
@@ -113,12 +113,12 @@ py2exe_options = dict(
     # packages=['reportlab'],
     #    ignores = "dotblas gnosis.xml.pickle.parsers._cexpat mx.DateTime".split(),
     # dll_excludes = "MSVCP90.dll mswsock.dll powrprof.dll".split(),
-    includes=['sip', 'PyQt4'],
-    excludes=['tkinter', 'toFspecials'],
+    includes=["sip", "PyQt5"],
+    excludes=["tkinter", "toFspecials"],
     optimize=2,
     compressed=True,  # uncompressed may or may not have a faster startup
     bundle_files=3,
-    dist_dir='dist',
+    dist_dir="dist",
 )
 
 
@@ -130,7 +130,7 @@ setup(
     console=[main_app],
     # windows subsystem executables (no console)
     windows=[
-        {'script': Config.NAME_MAIN, 'icon_resources': [(0, Config.APP_LOGO_ICO)]}
+        {"script": Config.NAME_MAIN, "icon_resources": [(0, Config.APP_LOGO_ICO)]}
     ],
     # py2exe options
     zipfile=None,

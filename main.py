@@ -8,9 +8,9 @@ from __future__ import unicode_literals, absolute_import, division, print_functi
 import os
 import sys
 
-sys.path.append(os.path.abspath('../'))
+sys.path.append(os.path.abspath("../"))
 
-from PyQt4.QtGui import QApplication
+from PyQt5.QtWidgets import QApplication
 
 from Common.cmain import cmain
 
@@ -26,9 +26,9 @@ def main():
     # # window.show()
     # window.showMaximized()
     # sys.exit(app.exec_())
-    print('kdk')
+    print("kdk")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     if cmain():
         sys.exit(app.exec_())

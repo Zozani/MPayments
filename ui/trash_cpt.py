@@ -3,17 +3,31 @@
 # maintainer: Fadiga
 
 
-from PyQt4.QtGui import (
-    QSplitter, QHBoxLayout, QPixmap, QFont, QListWidget, QListWidgetItem,
-    QIcon, QMenu, QGridLayout)
+from PyQt5.QtGui import (
+    QSplitter,
+    QHBoxLayout,
+    QPixmap,
+    QFont,
+    QListWidget,
+    QListWidgetItem,
+    QIcon,
+    QMenu,
+    QGridLayout,
+)
 
 from datetime import datetime
-from PyQt4.QtCore import Qt, QSize
+from PyQt5.QtCore import Qt, QSize
 
 from models import ProviderOrClient, Payment
 
 from Common.ui.common import (
-    BttExportXLSX, BttExportPDF, FWidget, Button, LineEdit, FormLabel)
+    BttExportXLSX,
+    BttExportPDF,
+    FWidget,
+    Button,
+    LineEdit,
+    FormLabel,
+)
 from Common.ui.table import FTableWidget, TotalsWidget
 from Common.ui.util import is_float
 from data_helper import device_amount
@@ -30,14 +44,14 @@ ALL_CONTACTS = "TOUS"
 
 class DebtsTrashViewWidget(FWidget):
 
-    """ Shows the home page  """
+    """Shows the home page"""
 
     def __init__(self, parent=0, *args, **kwargs):
-        super(DebtsTrashViewWidget, self).__init__(parent=parent,
-                                                   *args, **kwargs)
+        super(DebtsTrashViewWidget, self).__init__(parent=parent, *args, **kwargs)
         self.parent = parent
         self.parentWidget().setWindowTitle(
-            Config.APP_NAME + u" Gestion des element supprimer")
+            Config.APP_NAME + u" Gestion des element supprimer"
+        )
 
         self.title = u"Movements"
 
@@ -59,8 +73,9 @@ class DebtsTrashViewWidget(FWidget):
         self.add_btt.clicked.connect(self.suppression)
         # self.add_btt.setMaximumWidth(200)
         self.add_btt.setMaximumHeight(90)
-        self.add_btt.setIcon(QIcon(
-            "{img_media}del.png".format(img_media=Config.img_media)))
+        self.add_btt.setIcon(
+            QIcon("{img_media}del.png".format(img_media=Config.img_media))
+        )
         self.sub_btt = Button("Restorer")
         self.sub_btt.setEnabled(False)
         self.sub_btt.clicked.connect(self.restoration)
@@ -120,7 +135,9 @@ class DebtsTrashViewWidget(FWidget):
 
     def display_balance(self, amount_text):
         return """ <h2>Solde du {} = <b>{}</b></h2>
-               """.format(self.now, amount_text)
+               """.format(
+            self.now, amount_text
+        )
 
 
 class ProviderOrClientTableWidget(QListWidget):
@@ -138,12 +155,13 @@ class ProviderOrClientTableWidget(QListWidget):
         # self.setStyleSheet("QListWidget::item { border-bottom: 1px; }")
 
     def refresh_(self, provid_clt=None):
-        """ Rafraichir la liste des provid_cltes"""
+        """Rafraichir la liste des provid_cltes"""
         self.clear()
         self.addItem(ProviderOrClientQListWidgetItem(ALL_CONTACTS))
         qs = ProviderOrClient.select().where(
             ProviderOrClient.type_ == ProviderOrClient.CLT,
-            ProviderOrClient.deleted == True)
+            ProviderOrClient.deleted == True,
+        )
         if provid_clt:
             qs = qs.where(ProviderOrClient.name.contains(provid_clt))
         for provid_clt in qs:
@@ -168,7 +186,6 @@ class ProviderOrClientTableWidget(QListWidget):
 
 
 class ProviderOrClientQListWidgetItem(QListWidgetItem):
-
     def __init__(self, provid_clt):
         super(ProviderOrClientQListWidgetItem, self).__init__()
 
@@ -177,10 +194,17 @@ class ProviderOrClientQListWidgetItem(QListWidgetItem):
         icon = QIcon()
 
         if not isinstance(self.provid_clt, str):
-            icon.addPixmap(QPixmap("{}.png".format(
-                Config.img_media + "debt" if self.provid_clt.is_indebted(
-                ) else Config.img_cmedia + "user_active")),
-                QIcon.Normal, QIcon.Off)
+            icon.addPixmap(
+                QPixmap(
+                    "{}.png".format(
+                        Config.img_media + "debt"
+                        if self.provid_clt.is_indebted()
+                        else Config.img_cmedia + "user_active"
+                    )
+                ),
+                QIcon.Normal,
+                QIcon.Off,
+            )
 
         self.setIcon(icon)
         self.init_text()
@@ -206,13 +230,11 @@ class ProviderOrClientQListWidgetItem(QListWidgetItem):
 
 
 class RapportTableWidget(FTableWidget):
-
     def __init__(self, parent, *args, **kwargs):
 
         FTableWidget.__init__(self, parent=parent, *args, **kwargs)
 
-        self.hheaders = [
-            "Date", "Libelle opération", "Débit", "Crédit", "Solde", ""]
+        self.hheaders = ["Date", "Libelle opération", "Débit", "Crédit", "Solde", ""]
         # self.setContextMenuPolicy(Qt.CustomContextMenu)
         # self.customContextMenuRequested.connect(self.popup)
 
@@ -220,7 +242,7 @@ class RapportTableWidget(FTableWidget):
 
         self.sorter = False
         self.stretch_columns = [0, 1, 2, 3, 4]
-        self.align_map = {0: 'l', 1: 'l', 2: 'r', 3: 'r', 4: 'r'}
+        self.align_map = {0: "l", 1: "l", 2: "r", 3: "r", 4: "r"}
         self.ecart = -15
         self.display_vheaders = False
         # self.refresh_()
@@ -240,31 +262,37 @@ class RapportTableWidget(FTableWidget):
         self.refresh()
 
         self.parent.label_balance.setText(
-            self.parent.display_balance(device_amount(self.balance_tt, provid_clt_id)))
+            self.parent.display_balance(device_amount(self.balance_tt, provid_clt_id))
+        )
         self.hideColumn(len(self.hheaders) - 1)
 
     def set_data_for(self, provid_clt_id=None, search=None):
         self.provid_clt_id = provid_clt_id
-        qs = Payment.select().where(
-            Payment.status == False).order_by(Payment.date.asc())
+        qs = (
+            Payment.select().where(Payment.status == False).order_by(Payment.date.asc())
+        )
 
         self.remaining = 0
         if isinstance(provid_clt_id, int):
             self.provider_clt = ProviderOrClient.get(id=provid_clt_id)
             qs = qs.select().where(Payment.provider_clt == self.provider_clt)
             msg = "<h3>Compte : {}</h3> <h4>Tel: {}</h4>".format(
-                self.provider_clt.name, self.provider_clt.phone)
+                self.provider_clt.name, self.provider_clt.phone
+            )
         else:
             # return
             self.provider_clt = "Tous"
             for prov in ProviderOrClient.select().where(
-                    ProviderOrClient.type_ == ProviderOrClient.CLT):
+                ProviderOrClient.type_ == ProviderOrClient.CLT
+            ):
                 self.remaining += prov.last_remaining()
             msg = self.provider_clt
         self.parent.label_owner.setText(msg)
 
-        self.data = [(pay.date, pay.libelle, pay.debit,
-                      pay.credit, pay.balance, pay.id) for pay in qs.iterator()]
+        self.data = [
+            (pay.date, pay.libelle, pay.debit, pay.credit, pay.balance, pay.id)
+            for pay in qs.iterator()
+        ]
 
     # def popup(self, pos):
 
@@ -313,39 +341,65 @@ class RapportTableWidget(FTableWidget):
         self.label_mov_tt = u"Totals mouvements: "
         self.setItem(nb_rows, 1, TotalsWidget(self.label_mov_tt))
         self.setItem(
-            nb_rows, 2, TotalsWidget(device_amount(self.totals_debit, self.provid_clt_id)))
+            nb_rows,
+            2,
+            TotalsWidget(device_amount(self.totals_debit, self.provid_clt_id)),
+        )
         self.setItem(
-            nb_rows, 3, TotalsWidget(device_amount(self.totals_credit, self.provid_clt_id)))
+            nb_rows,
+            3,
+            TotalsWidget(device_amount(self.totals_credit, self.provid_clt_id)),
+        )
 
     def dict_data(self):
         title = "Movements"
         return {
-            'file_name': title,
-            'headers': self.hheaders[:-1],
-            'data': self.data,
-            "extend_rows": [(1, self.label_mov_tt),
-                            (2, self.totals_debit),
-                            (3, self.totals_credit), ],
-            'sheet': title,
+            "file_name": title,
+            "headers": self.hheaders[:-1],
+            "data": self.data,
+            "extend_rows": [
+                (1, self.label_mov_tt),
+                (2, self.totals_debit),
+                (3, self.totals_credit),
+            ],
+            "sheet": title,
             # 'title': self.title,
-            'widths': self.stretch_columns,
-            'format_money': ["C:C", "D:D", "E:E", ],
-            'exclude_row': len(self.data) - 1,
-            'date': self.parent.now,
-            'others': [("A7", "C7", "Compte : {}".format(self.provider_clt)),
-                       ("A8", "B8", "Solde au {}: {}".format(
-                        self.parent.now, device_amount(self.balance_tt, self.provider_clt.id))), ],
+            "widths": self.stretch_columns,
+            "format_money": [
+                "C:C",
+                "D:D",
+                "E:E",
+            ],
+            "exclude_row": len(self.data) - 1,
+            "date": self.parent.now,
+            "others": [
+                ("A7", "C7", "Compte : {}".format(self.provider_clt)),
+                (
+                    "A8",
+                    "B8",
+                    "Solde au {}: {}".format(
+                        self.parent.now,
+                        device_amount(self.balance_tt, self.provider_clt.id),
+                    ),
+                ),
+            ],
         }
 
 
 class RapportCISSTableWidget(FTableWidget):
-
     def __init__(self, parent, *args, **kwargs):
 
         FTableWidget.__init__(self, parent=parent, *args, **kwargs)
 
         self.hheaders = [
-            "Date", "Libelle opération", "Poids (kg)", "Débit", "Crédit", "Solde", ""]
+            "Date",
+            "Libelle opération",
+            "Poids (kg)",
+            "Débit",
+            "Crédit",
+            "Solde",
+            "",
+        ]
         # self.setContextMenuPolicy(Qt.CustomContextMenu)
         # self.customContextMenuRequested.connect(self.popup)
 
@@ -353,7 +407,7 @@ class RapportCISSTableWidget(FTableWidget):
 
         self.sorter = False
         self.stretch_columns = [0, 1, 2, 3, 4, 5]
-        self.align_map = {0: 'l', 1: 'l', 2: 'r', 3: 'r', 4: 'r', 5: 'r'}
+        self.align_map = {0: "l", 1: "l", 2: "r", 3: "r", 4: "r", 5: "r"}
         # self.ecart = -5
         self.display_vheaders = False
         # self.refresh_()
@@ -368,33 +422,45 @@ class RapportCISSTableWidget(FTableWidget):
         self.set_data_for(provid_clt_id=provid_clt_id, search=search)
         self.refresh()
 
-        self.parent.label_balance.setText(self.parent.display_balance(
-            device_amount(
-                self.balance_tt, provid_clt_id)))
+        self.parent.label_balance.setText(
+            self.parent.display_balance(device_amount(self.balance_tt, provid_clt_id))
+        )
         self.hideColumn(len(self.hheaders) - 1)
 
     def set_data_for(self, provid_clt_id=None, search=None):
         self.provid_clt_id = provid_clt_id
-        qs = Payment.select().where(
-            Payment.status == False).order_by(Payment.date.asc())
+        qs = (
+            Payment.select().where(Payment.status == False).order_by(Payment.date.asc())
+        )
 
         self.remaining = 0
         if isinstance(provid_clt_id, int):
             self.provider_clt = ProviderOrClient.get(id=provid_clt_id)
             qs = qs.select().where(Payment.provider_clt == self.provider_clt)
             msg = "<h3>Compte : {}</h3> <h4>Tel: {}</h4>".format(
-                self.provider_clt.name, self.provider_clt.phone)
+                self.provider_clt.name, self.provider_clt.phone
+            )
         else:
             self.provider_clt = "Tous"
             for prov in ProviderOrClient.select().where(
-                    ProviderOrClient.type_ == ProviderOrClient.CLT):
+                ProviderOrClient.type_ == ProviderOrClient.CLT
+            ):
                 self.remaining += prov.last_remaining()
             msg = self.provider_clt
         self.parent.label_owner.setText(msg)
 
-        self.data = [(
-            pay.date, pay.libelle, pay.weight, pay.debit,
-            pay.credit, pay.balance, pay.id) for pay in qs.iterator()]
+        self.data = [
+            (
+                pay.date,
+                pay.libelle,
+                pay.weight,
+                pay.debit,
+                pay.credit,
+                pay.balance,
+                pay.id,
+            )
+            for pay in qs.iterator()
+        ]
 
     def extend_rows(self):
 
@@ -426,31 +492,45 @@ class RapportCISSTableWidget(FTableWidget):
 
         self.label_mov_tt = u"Totals mouvements: "
         self.setItem(nb_rows, 1, TotalsWidget(self.label_mov_tt))
-        self.setItem(nb_rows, 2, TotalsWidget(device_amount(
-            self.totals_weight, dvs="Kg", aftergam=3)))
-        self.setItem(nb_rows, 3, TotalsWidget(device_amount(
-            self.totals_debit)))
-        self.setItem(nb_rows, 4, TotalsWidget(device_amount(
-            self.totals_credit)))
+        self.setItem(
+            nb_rows,
+            2,
+            TotalsWidget(device_amount(self.totals_weight, dvs="Kg", aftergam=3)),
+        )
+        self.setItem(nb_rows, 3, TotalsWidget(device_amount(self.totals_debit)))
+        self.setItem(nb_rows, 4, TotalsWidget(device_amount(self.totals_credit)))
 
     def dict_data(self):
         title = "Movements"
         return {
-            'file_name': title,
-            'headers': self.hheaders[:-1],
-            'data': self.data,
-            "extend_rows": [(1, self.label_mov_tt),
-                            (2, device_amount(self.totals_weight, dvs="F", aftergam=3)),
-                            (3, self.totals_debit),
-                            (4, self.totals_credit), ],
-            'sheet': title,
+            "file_name": title,
+            "headers": self.hheaders[:-1],
+            "data": self.data,
+            "extend_rows": [
+                (1, self.label_mov_tt),
+                (2, device_amount(self.totals_weight, dvs="F", aftergam=3)),
+                (3, self.totals_debit),
+                (4, self.totals_credit),
+            ],
+            "sheet": title,
             # 'title': self.title,
-            'widths': self.stretch_columns,
-            'format_money': ["C:C", "D:D", "E:E", ],
-            'exclude_row': len(self.data) - 1,
-            'date': self.parent.now,
-            'others': [("A5", "C7", "Compte : {}".format(self.provider_clt)),
-                       ("A6", "B6", "Solde au {}: {}".format(
-                        self.parent.now, device_amount(
-                            self.balance_tt, self.provider_clt))), ],
+            "widths": self.stretch_columns,
+            "format_money": [
+                "C:C",
+                "D:D",
+                "E:E",
+            ],
+            "exclude_row": len(self.data) - 1,
+            "date": self.parent.now,
+            "others": [
+                ("A5", "C7", "Compte : {}".format(self.provider_clt)),
+                (
+                    "A6",
+                    "B6",
+                    "Solde au {}: {}".format(
+                        self.parent.now,
+                        device_amount(self.balance_tt, self.provider_clt),
+                    ),
+                ),
+            ],
         }
