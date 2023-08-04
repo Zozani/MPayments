@@ -1,22 +1,24 @@
-#!/usr/bin/env python
-# -*- encoding: utf-8 -*-
+# from static import Constants
+
 # vim: ai ts=4 sts=4 et sw=4 nu
 # maintainer: Fad
-from __future__ import (unicode_literals, absolute_import, division,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+#!/usr/bin/env python
+# -*- encoding: utf-8 -*-
 import os
-# from static import Constants
+
 from Common.cstatic import CConstants
 from models import Payment
 
-ROOT_DIR = os.path.dirname(os.path.abspath('__file__'))
+ROOT_DIR = os.path.dirname(os.path.abspath("__file__"))
 
 
 class Config(CConstants):
 
-    """ docstring for Config """
+    """docstring for Config"""
 
-    DATEFORMAT = u'%d-%m-%Y'
+    DATEFORMAT = "%d-%m-%Y"
 
     def __init__(self):
         CConstants.__init__(self)
@@ -48,7 +50,7 @@ class Config(CConstants):
     pdf_source = "pdf_source.pdf"
     APP_NAME = "MPayments"
     APP_VERSION = 2
-    APP_DATE = u"11/2017"
+    APP_DATE = "11/2017"
     img_media = os.path.join(os.path.join(ROOT_DIR, "static"), "images/")
     APP_LOGO = os.path.join(img_media, "logo.png")
     APP_LOGO_ICO = os.path.join(img_media, "logo.ico")

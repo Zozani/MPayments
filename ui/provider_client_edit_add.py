@@ -2,20 +2,15 @@
 # -*- coding: utf-8 -*-
 # maintainer: Fad
 
-from PyQt4.QtGui import (
-    QVBoxLayout, QDialog, QTextEdit, QFormLayout, QComboBox)
-
-from Common.ui.util import check_is_empty, field_error
-from Common.ui.common import (
-    FWidget, Button, FormLabel, LineEdit, IntLineEdit)
 import peewee
-from models import ProviderOrClient
-
+from Common.ui.common import Button, FormLabel, FWidget, IntLineEdit, LineEdit
+from Common.ui.util import check_is_empty, field_error
 from configuration import Config
+from models import ProviderOrClient
+from PyQt4.QtGui import QComboBox, QDialog, QFormLayout, QTextEdit, QVBoxLayout
 
 
 class EditOrAddClientOrProviderDialog(QDialog, FWidget):
-
     def __init__(self, table_p, parent, prov_clt=None, *args, **kwargs):
         FWidget.__init__(self, parent, *args, **kwargs)
 
@@ -24,14 +19,14 @@ class EditOrAddClientOrProviderDialog(QDialog, FWidget):
         self.parent = parent
         if self.prov_clt:
             self.new = False
-            self.title = u"Modification de {} {}".format(self.prov_clt.type_,
-                                                         self.prov_clt.name)
-            self.succes_msg = u"{} a été bien mise à jour".format(
-                self.prov_clt.type_)
+            self.title = "Modification de {} {}".format(
+                self.prov_clt.type_, self.prov_clt.name
+            )
+            self.succes_msg = "{} a été bien mise à jour".format(self.prov_clt.type_)
         else:
             self.new = True
-            self.succes_msg = u"Client a été bien enregistré"
-            self.title = u"Création d'un nouvel client"
+            self.succes_msg = "Client a été bien enregistré"
+            self.title = "Création d'un nouvel client"
             self.prov_clt = ProviderOrClient()
         self.setWindowTitle(self.title)
 
@@ -41,8 +36,7 @@ class EditOrAddClientOrProviderDialog(QDialog, FWidget):
         # Combobox widget
         self.box_devise = QComboBox()
         for index, value in enumerate(self.liste_devise):
-            self.box_devise.addItem(
-                "{} {}".format(self.liste_devise[value], value))
+            self.box_devise.addItem("{} {}".format(self.liste_devise[value], value))
             if self.prov_clt.devise == value:
                 self.box_devise.setCurrentIndex(index)
 
@@ -58,18 +52,18 @@ class EditOrAddClientOrProviderDialog(QDialog, FWidget):
         self.email = LineEdit(self.prov_clt.email)
 
         formbox = QFormLayout()
-        formbox.addRow(FormLabel(u"Nom complete : *"), self.nameField)
+        formbox.addRow(FormLabel("Nom complete : *"), self.nameField)
 
         if Config.DEVISE_PEP_PROV:
-            formbox.addRow(FormLabel(u"Devise :"), self.box_devise)
+            formbox.addRow(FormLabel("Devise :"), self.box_devise)
 
         if not self.new:
-            formbox.addRow(FormLabel(u"Tel: *"), self.phone_field)
-            formbox.addRow(FormLabel(u"E-mail :"), self.email)
-            formbox.addRow(FormLabel(u"addresse complete :"), self.address)
-            formbox.addRow(FormLabel(u"Info. legale :"), self.legal_infos)
+            formbox.addRow(FormLabel("Tel: *"), self.phone_field)
+            formbox.addRow(FormLabel("E-mail :"), self.email)
+            formbox.addRow(FormLabel("addresse complete :"), self.address)
+            formbox.addRow(FormLabel("Info. legale :"), self.legal_infos)
 
-        butt = Button(u"Enregistrer")
+        butt = Button("Enregistrer")
         butt.clicked.connect(self.save_edit)
         formbox.addRow("", butt)
 
@@ -77,7 +71,7 @@ class EditOrAddClientOrProviderDialog(QDialog, FWidget):
         self.setLayout(vbox)
 
     def save_edit(self):
-        ''' add operation '''
+        """add operation"""
         # print("Save")
         phone = self.phone_field.text()
         # field_error
@@ -101,9 +95,9 @@ class EditOrAddClientOrProviderDialog(QDialog, FWidget):
             prov_clt.save()
             self.close()
             self.table_p.refresh_()
-            self.parent.Notify(u"Le Compte %s a été mise à jour" %
-                               prov_clt.name, "success")
+            self.parent.Notify(
+                "Le Compte %s a été mise à jour" % prov_clt.name, "success"
+            )
         except peewee.IntegrityError as e:
             # print("IntegrityError ", e)
-            field_error(
-                self.nameField, "Ce nom existe dans la basse de donnée.")
+            field_error(self.nameField, "Ce nom existe dans la basse de donnée.")
