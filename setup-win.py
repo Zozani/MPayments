@@ -72,7 +72,7 @@ manifest_template = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     <dependentAssembly>
         <assemblyIdentity
             type="win32"
-            name="Microsoft.Windows.Common-Controls"
+            name="Microsoft.WindowsCommon-Controls"
             version="6.0.0.0"
             processorArchitecture="*"
             publicKeyToken="6595b64144ccf1df"
@@ -112,7 +112,7 @@ py2exe_options = dict(
     # packages=['reportlab'],
     #    ignores = "dotblas gnosis.xml.pickle.parsers._cexpat mx.DateTime".split(),
     # dll_excludes = "MSVCP90.dll mswsock.dll powrprof.dll".split(),
-    includes=["sip", "PyQt4"],
+    includes=["sip", "PyQt5"],
     excludes=["tkinter", "toFspecials"],
     optimize=2,
     compressed=True,  # uncompressed may or may not have a faster startup

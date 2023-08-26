@@ -5,7 +5,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 from Common.ui.common import FMainWindow
 from configuration import Config
-from PyQt4.QtGui import QIcon
+from PyQt5.QtGui import QIcon
 from ui.debt_manager import DebtsViewWidget
 
 # from ui.menutoolbar import MenuToolBar

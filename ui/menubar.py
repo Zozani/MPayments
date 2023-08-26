@@ -7,8 +7,10 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from Common.ui.cmenubar import FMenuBar
 from Common.ui.common import FWidget
 from configuration import Config
-from PyQt4.QtCore import SIGNAL
-from PyQt4.QtGui import QAction, QIcon, QMessageBox, QPixmap
+from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtWidgets import QAction, QMessageBox
+
+# from PyQt5.QtCore import SIGNAL
 
 
 class MenuBar(FMenuBar, FWidget):
@@ -56,16 +58,18 @@ class MenuBar(FMenuBar, FWidget):
                 self,
             )
             el_menu.setShortcut(m.get("shortcut"))
-            self.connect(
-                el_menu, SIGNAL("triggered()"), lambda m=m: self.goto(m.get("goto"))
-            )
+            el_menu.triggered.connect(lambda m=m: self.goto(m.get("goto")))
+            # self.connect(
+            #     el_menu, SIGNAL("triggered()"), lambda m=m: self.goto(m.get("goto"))
+            # )
             goto_.addSeparator()
             goto_.addAction(el_menu)
 
-        # if admin:
-        # all report
-        #     all_report = QAction(u"Tous les rapports", self)
-        #     all_report.setShortcut("Ctrl+T")
+        if admin:
+            # all report
+            all_report = QAction("Tous les rapports", self)
+            all_report.setShortcut("Ctrl+T")
+            all_report.triggered.connect(self.all_report)
         #     self.connect(all_report, SIGNAL("triggered()"),
         #                                         self.all_report)
         #     goto_.addAction(all_report)

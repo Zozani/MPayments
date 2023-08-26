@@ -8,3 +8,4 @@ Movements.pdf
 versements-30-01-2018.pdf
 dist/
 *.exe
+.DS_Store

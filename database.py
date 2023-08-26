@@ -20,6 +20,7 @@ class Setup(AdminDatabase):
     """docstring for FixtInit"""
 
     def __init__(self):
+        print("Setup ...")
         super(AdminDatabase, self).__init__()
 
         self.LIST_CREAT.append(Payment)
@@ -35,4 +36,4 @@ class Setup(AdminDatabase):
             ("Payment", "name", CharField(null=True)),
             ("Transfert", "name", CharField(null=True)),
         ]
-        self.make_migrate(db_v=3)
+        self.create_all_or_pass()

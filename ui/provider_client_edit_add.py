@@ -7,7 +7,7 @@ from Common.ui.common import Button, FormLabel, FWidget, IntLineEdit, LineEdit
 from Common.ui.util import check_is_empty, field_error
 from configuration import Config
 from models import ProviderOrClient
-from PyQt4.QtGui import QComboBox, QDialog, QFormLayout, QTextEdit, QVBoxLayout
+from PyQt5.QtWidgets import QComboBox, QDialog, QFormLayout, QTextEdit, QVBoxLayout
 
 
 class EditOrAddClientOrProviderDialog(QDialog, FWidget):

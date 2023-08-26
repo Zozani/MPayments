@@ -7,7 +7,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 from datetime import datetime
 
-from Common.models import BaseModel, FileJoin, Owner
 from data_helper import device_amount
 from peewee import (
     BooleanField,
@@ -18,6 +17,8 @@ from peewee import (
     IntegerField,
     TextField,
 )
+
+from Common.models import BaseModel, FileJoin, Owner
 
 FDATE = "%c"
 NOW = datetime.now()

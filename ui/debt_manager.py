@@ -18,16 +18,14 @@ from Common.ui.util import is_float
 from configuration import Config
 from data_helper import device_amount
 from models import Payment, ProviderOrClient
-from PyQt4.QtCore import QSize, Qt
-from PyQt4.QtGui import (
-    QFont,
+from PyQt5.QtCore import QSize, Qt
+from PyQt5.QtGui import QFont, QIcon, QPixmap
+from PyQt5.QtWidgets import (
     QGridLayout,
     QHBoxLayout,
-    QIcon,
     QListWidget,
     QListWidgetItem,
     QMenu,
-    QPixmap,
     QSplitter,
 )
 from ui.payment_edit_add import EditOrAddPaymentrDialog

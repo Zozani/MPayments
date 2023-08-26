@@ -4,38 +4,39 @@
 # maintainer: Fad
 
 
-from datetime import datetime, date
+from datetime import date, datetime
 
-from PyQt4.QtGui import (QVBoxLayout, QGridLayout, QMenu)
-from PyQt4.QtCore import Qt, QDate
-
-from configuration import Config
 from Common.ui.common import (
-    FormLabel, FWidget, FPeriodHolder, FPageTitle, BttExportPDF,
-    BttExportXLSX, FormatDate, ExtendedComboBox)
+    BttExportPDF,
+    BttExportXLSX,
+    ExtendedComboBox,
+    FormatDate,
+    FormLabel,
+    FPageTitle,
+    FPeriodHolder,
+    FWidget,
+)
 from Common.ui.table import FTableWidget, TotalsWidget
-from Common.ui.util import is_float, date_to_datetime, date_on_or_end
+from Common.ui.util import date_on_or_end, date_to_datetime, is_float
+from configuration import Config
 from data_helper import device_amount
-
 from models import Payment, ProviderOrClient
+from PyQt5.QtCore import QDate, Qt
+from PyQt5.QtWidgets import QGridLayout, QMenu, QVBoxLayout
 from ui.payment_edit_add import EditOrAddPaymentrDialog
 
 
 class StatisticsViewWidget(FWidget, FPeriodHolder):
-
     def __init__(self, parent=0, *args, **kwargs):
-
-        super(StatisticsViewWidget, self).__init__(
-            parent=parent, *args, **kwargs)
+        super(StatisticsViewWidget, self).__init__(parent=parent, *args, **kwargs)
         FPeriodHolder.__init__(self, *args, **kwargs)
 
         self.parent = parent
 
-        self.title = u"Movements"
+        self.title = "Movements"
         self.compte = self.compte_name = "Tous"
 
-        self.on_date_field = FormatDate(
-            QDate(date.today().year, date.today().month, 1))
+        self.on_date_field = FormatDate(QDate(date.today().year, date.today().month, 1))
         self.on_date_field.dateChanged.connect(self.refresh_prov_clt)
         self.end_date_field = FormatDate(QDate.currentDate())
         self.end_date_field.dateChanged.connect(self.refresh_prov_clt)
@@ -46,15 +47,16 @@ class StatisticsViewWidget(FWidget, FPeriodHolder):
         balance_box.setColumnStretch(0, 1)
 
         self.string_list = [""] + [
-            (clt.name) for clt in ProviderOrClient.select().where(
-                ProviderOrClient.type_ == ProviderOrClient.CLT).order_by(
-                ProviderOrClient.name.desc())]
+            (clt.name)
+            for clt in ProviderOrClient.select()
+            .where(ProviderOrClient.type_ == ProviderOrClient.CLT)
+            .order_by(ProviderOrClient.name.desc())
+        ]
         self.title_field = FPageTitle("Tous")
         self.compte_field = ExtendedComboBox()
         self.compte_field.addItems(self.string_list)
         self.compte_field.setToolTip("Nom du compte")
-        self.compte_field.currentIndexChanged.connect(
-            self.refresh_prov_clt)
+        self.compte_field.currentIndexChanged.connect(self.refresh_prov_clt)
 
         self.btt_pdf_export = BttExportPDF("")
         self.btt_pdf_export.clicked.connect(self.export_pdf)
@@ -68,9 +70,9 @@ class StatisticsViewWidget(FWidget, FPeriodHolder):
 
         editbox = QGridLayout()
         editbox.addWidget(self.compte_field, 1, 0)
-        editbox.addWidget(FormLabel(u"Date debut"), 1, 1)
+        editbox.addWidget(FormLabel("Date debut"), 1, 1)
         editbox.addWidget(self.on_date_field, 1, 2)
-        editbox.addWidget(FormLabel(u"Date fin"), 1, 3)
+        editbox.addWidget(FormLabel("Date fin"), 1, 3)
         editbox.addWidget(self.end_date_field, 1, 4)
         editbox.setColumnStretch(5, 2)
         editbox.addWidget(self.btt_pdf_export, 1, 6)
@@ -94,25 +96,34 @@ class StatisticsViewWidget(FWidget, FPeriodHolder):
 
     def export_pdf(self):
         from Common.exports_pdf import export_dynamic_data
+
         export_dynamic_data(self.table.dict_data())
 
     def export_xlsx(self):
         from Common.exports_xlsx import export_dynamic_data
+
         export_dynamic_data(self.table.dict_data())
 
     def display_balance(self, amount_text):
         return """ <h2>Solde du {}: <b>{}</b></h2>
-               """.format(self.now, amount_text)
+               """.format(
+            self.now, amount_text
+        )
 
 
 class RapportCISSTableWidget(FTableWidget):
-
     def __init__(self, parent, *args, **kwargs):
-
         FTableWidget.__init__(self, parent=parent, *args, **kwargs)
 
         self.hheaders = [
-            "Date", "Libelle opération", "Poids (kg)", "Débit", "Crédit", "Solde", ""]
+            "Date",
+            "Libelle opération",
+            "Poids (kg)",
+            "Débit",
+            "Crédit",
+            "Solde",
+            "",
+        ]
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.popup)
 
@@ -120,7 +131,7 @@ class RapportCISSTableWidget(FTableWidget):
 
         self.sorter = True
         self.stretch_columns = [0, 1, 2, 3, 4, 5]
-        self.align_map = {0: 'l', 1: 'l', 2: 'r', 3: 'r', 4: 'r', 5: 'r'}
+        self.align_map = {0: "l", 1: "l", 2: "r", 3: "r", 4: "r", 5: "r"}
         # self.ecart = -5
         self.display_vheaders = False
         self.refresh_()
@@ -139,7 +150,8 @@ class RapportCISSTableWidget(FTableWidget):
         self.refresh()
 
         self.parent.balanceField.setText(
-            self.parent.display_balance(device_amount(self.balance_tt)))
+            self.parent.display_balance(device_amount(self.balance_tt))
+        )
 
         self.hideColumn(len(self.hheaders) - 1)
 
@@ -149,22 +161,35 @@ class RapportCISSTableWidget(FTableWidget):
             qs = qs.where(Payment.provider_clt == self.parent.compte)
         else:
             self.parent.compte = "Tous"
-        qs = qs.select().where(
-            Payment.status == False, Payment.date <= date_on_or_end(
-                self.end_date, on=False), Payment.date >= date_on_or_end(
-                self.on_date)).order_by(Payment.date.asc())
-        self.data = [(
-            pay.date, pay.libelle, pay.weight, pay.debit, pay.credit,
-            pay.balance, pay.id) for pay in qs]
+        qs = (
+            qs.select()
+            .where(
+                Payment.status == False,
+                Payment.date <= date_on_or_end(self.end_date, on=False),
+                Payment.date >= date_on_or_end(self.on_date),
+            )
+            .order_by(Payment.date.asc())
+        )
+        self.data = [
+            (
+                pay.date,
+                pay.libelle,
+                pay.weight,
+                pay.debit,
+                pay.credit,
+                pay.balance,
+                pay.id,
+            )
+            for pay in qs
+        ]
 
     def popup(self, pos):
-
         # from ui.ligne_edit import EditLigneViewWidget
         from ui.deleteview import DeleteViewWidget
+
         # from data_helper import check_befor_update_payment
 
-        if (len(self.data) - 1) < self.selectionModel().selection().indexes(
-        )[0].row():
+        if (len(self.data) - 1) < self.selectionModel().selection().indexes()[0].row():
             return False
         menu = QMenu()
         editaction = menu.addAction("Modifier cette ligne")
@@ -173,15 +198,16 @@ class RapportCISSTableWidget(FTableWidget):
         row = self.selectionModel().selection().indexes()[0].row()
         payment = Payment.get(id=self.data[row][-1])
         if action == editaction:
-            self.parent.open_dialog(EditOrAddPaymentrDialog, modal=True,
-                                    payment=payment, table_p=self)
+            self.parent.open_dialog(
+                EditOrAddPaymentrDialog, modal=True, payment=payment, table_p=self
+            )
 
         if action == delaction:
-            self.parent.open_dialog(DeleteViewWidget, modal=True,
-                                    table_p=self, obj=payment)
+            self.parent.open_dialog(
+                DeleteViewWidget, modal=True, table_p=self, obj=payment
+            )
 
     def extend_rows(self):
-
         self.parent.btt_pdf_export.setEnabled(True)
         self.parent.btt_xlsx_export.setEnabled(True)
         nb_rows = self.rowCount()
@@ -206,48 +232,60 @@ class RapportCISSTableWidget(FTableWidget):
         # self.balance_tt = last_balance
         self.balance_tt = self.totals_credit - self.totals_debit
 
-        self.label_mov_tt = u"Totals mouvements: "
+        self.label_mov_tt = "Totals mouvements: "
         self.setItem(nb_rows, 1, TotalsWidget(self.label_mov_tt))
-        self.setItem(nb_rows, 2, TotalsWidget(
-            device_amount(self.totals_weight, dvs="Kg", aftergam=3)))
-        self.setItem(nb_rows, 3, TotalsWidget(
-            device_amount(self.totals_debit)))
-        self.setItem(nb_rows, 4, TotalsWidget(
-            device_amount(self.totals_credit)))
+        self.setItem(
+            nb_rows,
+            2,
+            TotalsWidget(device_amount(self.totals_weight, dvs="Kg", aftergam=3)),
+        )
+        self.setItem(nb_rows, 3, TotalsWidget(device_amount(self.totals_debit)))
+        self.setItem(nb_rows, 4, TotalsWidget(device_amount(self.totals_credit)))
 
     def dict_data(self):
         title = "versements"
         return {
-            'file_name': "{}-{}".format(title, self.parent.now),
-            'headers': self.hheaders[:-1],
-            'data': self.data,
-            "extend_rows": [(1, self.label_mov_tt),
-                            (2, device_amount(self.totals_weight, dvs="Kg", aftergam=3)),
-                            (3, self.totals_debit),
-                            (4, self.totals_credit), ],
-            "footers": [("C", "E", "Solde du {} = {}".format(
-                self.end_date.strftime("%x"), device_amount(
-                        self.balance_tt)))],
-            'sheet': title,
+            "file_name": "{}-{}".format(title, self.parent.now),
+            "headers": self.hheaders[:-1],
+            "data": self.data,
+            "extend_rows": [
+                (1, self.label_mov_tt),
+                (2, device_amount(self.totals_weight, dvs="Kg", aftergam=3)),
+                (3, self.totals_debit),
+                (4, self.totals_credit),
+            ],
+            "footers": [
+                (
+                    "C",
+                    "E",
+                    "Solde du {} = {}".format(
+                        self.end_date.strftime("%x"), device_amount(self.balance_tt)
+                    ),
+                )
+            ],
+            "sheet": title,
             # 'title': self.title,
-            'widths': self.stretch_columns,
-            'format_money': ["C:C", "D:D", "E:E", ],
+            "widths": self.stretch_columns,
+            "format_money": [
+                "C:C",
+                "D:D",
+                "E:E",
+            ],
             # 'exclude_row': len(self.data) - 1,
-            'others': [("A7", "C7", "Compte : {}".format(
-                self.parent.compte_name)), ],
+            "others": [
+                ("A7", "C7", "Compte : {}".format(self.parent.compte_name)),
+            ],
             "date": "Du {} au {}".format(
-                self.on_date.strftime("%x"), self.end_date.strftime("%x"))
+                self.on_date.strftime("%x"), self.end_date.strftime("%x")
+            ),
         }
 
 
 class RapportTableWidget(FTableWidget):
-
     def __init__(self, parent, *args, **kwargs):
-
         FTableWidget.__init__(self, parent=parent, *args, **kwargs)
 
-        self.hheaders = [
-            "Date", "Libelle opération", "Débit", "Crédit", "Solde", ""]
+        self.hheaders = ["Date", "Libelle opération", "Débit", "Crédit", "Solde", ""]
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.popup)
 
@@ -255,7 +293,7 @@ class RapportTableWidget(FTableWidget):
 
         # self.sorter = True
         self.stretch_columns = [0, 1, 2, 3, 4]
-        self.align_map = {0: 'l', 1: 'l', 2: 'r', 3: 'r', 4: 'r'}
+        self.align_map = {0: "l", 1: "l", 2: "r", 3: "r", 4: "r"}
         self.display_vheaders = False
         if not Config.DEVISE_PEP_PROV:
             self.refresh_()
@@ -275,7 +313,8 @@ class RapportTableWidget(FTableWidget):
         self.refresh()
 
         self.parent.balanceField.setText(
-            self.parent.display_balance(device_amount(self.balance_tt)))
+            self.parent.display_balance(device_amount(self.balance_tt))
+        )
 
         self.hideColumn(len(self.hheaders) - 1)
 
@@ -285,22 +324,27 @@ class RapportTableWidget(FTableWidget):
             qs = qs.where(Payment.provider_clt == self.parent.compte)
         else:
             self.parent.compte = "Tous"
-        qs = qs.select().where(
-            Payment.status == False, Payment.date <= date_on_or_end(
-                self.end_date, on=False), Payment.date >= date_on_or_end(
-                self.on_date)).order_by(Payment.date.asc())
-        self.data = [(
-            pay.date, pay.libelle, pay.debit, pay.credit,
-            pay.balance, pay.id) for pay in qs]
+        qs = (
+            qs.select()
+            .where(
+                Payment.status == False,
+                Payment.date <= date_on_or_end(self.end_date, on=False),
+                Payment.date >= date_on_or_end(self.on_date),
+            )
+            .order_by(Payment.date.asc())
+        )
+        self.data = [
+            (pay.date, pay.libelle, pay.debit, pay.credit, pay.balance, pay.id)
+            for pay in qs
+        ]
 
     def popup(self, pos):
-
         # from ui.ligne_edit import EditLigneViewWidget
         from ui.deleteview import DeleteViewWidget
+
         # from data_helper import check_befor_update_payment
 
-        if (len(self.data) - 1) < self.selectionModel().selection().indexes(
-        )[0].row():
+        if (len(self.data) - 1) < self.selectionModel().selection().indexes()[0].row():
             return False
         menu = QMenu()
         editaction = menu.addAction("Modifier cette ligne")
@@ -309,12 +353,14 @@ class RapportTableWidget(FTableWidget):
         row = self.selectionModel().selection().indexes()[0].row()
         payment = Payment.get(id=self.data[row][-1])
         if action == editaction:
-            self.parent.open_dialog(EditOrAddPaymentrDialog, modal=True,
-                                    payment=payment, table_p=self)
+            self.parent.open_dialog(
+                EditOrAddPaymentrDialog, modal=True, payment=payment, table_p=self
+            )
 
         if action == delaction:
-            self.parent.open_dialog(DeleteViewWidget, modal=True,
-                                    table_p=self, obj=payment)
+            self.parent.open_dialog(
+                DeleteViewWidget, modal=True, table_p=self, obj=payment
+            )
 
     def extend_rows(self):
         self.parent.btt_pdf_export.setEnabled(True)
@@ -337,32 +383,44 @@ class RapportTableWidget(FTableWidget):
         # self.balance_tt = last_balance
         self.balance_tt = self.totals_credit - self.totals_debit
 
-        self.label_mov_tt = u"Totals mouvements: "
+        self.label_mov_tt = "Totals mouvements: "
         self.setItem(nb_rows, 1, TotalsWidget(self.label_mov_tt))
-        self.setItem(nb_rows, 2, TotalsWidget(
-            device_amount(self.totals_debit)))
-        self.setItem(nb_rows, 3, TotalsWidget(
-            device_amount(self.totals_credit)))
+        self.setItem(nb_rows, 2, TotalsWidget(device_amount(self.totals_debit)))
+        self.setItem(nb_rows, 3, TotalsWidget(device_amount(self.totals_credit)))
 
     def dict_data(self):
         title = "versements"
         return {
-            'file_name': "{}-{}".format(title, self.parent.now),
-            'headers': self.hheaders[:-1],
-            'data': self.data,
-            "extend_rows": [(1, self.label_mov_tt),
-                            (2, self.totals_debit),
-                            (3, self.totals_credit), ],
-            "footers": [("C", "E", "Solde du {} = {}".format(
-                self.end_date.strftime("%x"), device_amount(
-                        self.balance_tt))), ],
-            'sheet': title,
+            "file_name": "{}-{}".format(title, self.parent.now),
+            "headers": self.hheaders[:-1],
+            "data": self.data,
+            "extend_rows": [
+                (1, self.label_mov_tt),
+                (2, self.totals_debit),
+                (3, self.totals_credit),
+            ],
+            "footers": [
+                (
+                    "C",
+                    "E",
+                    "Solde du {} = {}".format(
+                        self.end_date.strftime("%x"), device_amount(self.balance_tt)
+                    ),
+                ),
+            ],
+            "sheet": title,
             # 'title': self.title,
-            'widths': self.stretch_columns,
-            'format_money': ["C:C", "D:D", "E:E", ],
+            "widths": self.stretch_columns,
+            "format_money": [
+                "C:C",
+                "D:D",
+                "E:E",
+            ],
             # 'exclude_row': len(self.data) - 1,
-            'others': [("A7", "C7", "Compte : {}".format(
-                self.parent.compte_name)), ],
+            "others": [
+                ("A7", "C7", "Compte : {}".format(self.parent.compte_name)),
+            ],
             "date": "Du {} au {}".format(
-                self.on_date.strftime("%x"), self.end_date.strftime("%x"))
+                self.on_date.strftime("%x"), self.end_date.strftime("%x")
+            ),
         }
