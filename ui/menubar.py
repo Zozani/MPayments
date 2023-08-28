@@ -58,10 +58,7 @@ class MenuBar(FMenuBar, FWidget):
                 self,
             )
             el_menu.setShortcut(m.get("shortcut"))
-            el_menu.triggered.connect(lambda m=m: self.goto(m.get("goto")))
-            # self.connect(
-            #     el_menu, SIGNAL("triggered()"), lambda m=m: self.goto(m.get("goto"))
-            # )
+            el_menu.triggered.connect(lambda checked, goto=m["goto"]: self.goto(goto))
             goto_.addSeparator()
             goto_.addAction(el_menu)
 
@@ -70,9 +67,8 @@ class MenuBar(FMenuBar, FWidget):
             all_report = QAction("Tous les rapports", self)
             all_report.setShortcut("Ctrl+T")
             all_report.triggered.connect(self.all_report)
-        #     self.connect(all_report, SIGNAL("triggered()"),
-        #                                         self.all_report)
-        #     goto_.addAction(all_report)
+            all_report.triggered(all_report, self.all_report)
+            goto_.addAction(all_report)
 
         # Menu Aide
         help_ = self.addMenu("Aide")

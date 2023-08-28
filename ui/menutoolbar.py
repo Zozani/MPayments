@@ -49,5 +49,5 @@ class MenuToolBar(FMenuToolBar, FWidget):
             self.addAction(
                 QIcon("{}{}.png".format(Config.img_media, m.get("icon"))),
                 m.get("name"),
-                lambda m=m: self.goto(m.get("goto")),
+                lambda checked, goto=m["goto"]: self.goto(goto),
             )
