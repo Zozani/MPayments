@@ -4,6 +4,7 @@
 # maintainer: Fad
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+from Common.models import Settings
 from Common.ui.util import formatted_number
 
 
@@ -33,7 +34,7 @@ def device_amount(value, provider=None, dvs=None, aftergam=2):
     if dvs:
         return "{} {}".format(formatted_number(value, aftergam=aftergam), dvs)
 
-    organ = Organization().get(id=1)
+    organ = Settings().get(id=1)
 
     if not Config.DEVISE_PEP_PROV or not provider:
         dvs = organ.DEVISE.get(organ.devise)
