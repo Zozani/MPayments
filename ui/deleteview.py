@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # maintainer: Fad
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 from Common.ui.common import Button, FLabel, FPageTitle, FWidget
 from PyQt5.QtWidgets import QDialog, QGridLayout, QHBoxLayout, QVBoxLayout

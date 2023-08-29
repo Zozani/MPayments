@@ -8,8 +8,8 @@ from Common.ui.cmenutoolbar import FMenuToolBar
 from Common.ui.common import FWidget
 from configuration import Config
 from PyQt5.QtCore import QSize, Qt
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QCursor, QToolBar
+from PyQt5.QtGui import QCursor, QIcon
+from PyQt5.QtWidgets import QToolBar
 
 
 class MenuToolBar(FMenuToolBar, FWidget):
@@ -49,5 +49,5 @@ class MenuToolBar(FMenuToolBar, FWidget):
             self.addAction(
                 QIcon("{}{}.png".format(Config.img_media, m.get("icon"))),
                 m.get("name"),
-                lambda checked, goto=m["goto"]: self.goto(goto),
+                lambda goto=m["goto"]: self.goto(goto),
             )
