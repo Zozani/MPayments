@@ -3,41 +3,33 @@
 # maintainer: Fadiga
 
 
-from PyQt5.QtGui import (
-    QSplitter,
-    QHBoxLayout,
-    QPixmap,
-    QFont,
-    QListWidget,
-    QListWidgetItem,
-    QIcon,
-    QMenu,
-    QGridLayout,
-)
-
 from datetime import datetime
-from PyQt5.QtCore import Qt, QSize
-
-from models import ProviderOrClient, Payment
 
 from Common.ui.common import (
-    BttExportXLSX,
     BttExportPDF,
-    FWidget,
+    BttExportXLSX,
     Button,
-    LineEdit,
     FormLabel,
+    FWidget,
+    LineEdit,
 )
 from Common.ui.table import FTableWidget, TotalsWidget
 from Common.ui.util import is_float
+from configuration import Config
 from data_helper import device_amount
-
-
+from models import Payment, ProviderOrClient
+from PyQt5.QtCore import QSize, Qt
+from PyQt5.QtGui import QFont, QIcon, QPixmap
+from PyQt5.QtWidgets import (
+    QGridLayout,
+    QHBoxLayout,
+    QListWidget,
+    QListWidgetItem,
+    QMenu,
+    QSplitter,
+)
 from ui.payment_edit_add import EditOrAddPaymentrDialog
 from ui.provider_client_edit_add import EditOrAddClientOrProviderDialog
-
-from configuration import Config
-
 
 ALL_CONTACTS = "TOUS"
 
@@ -50,10 +42,10 @@ class DebtsTrashViewWidget(FWidget):
         super(DebtsTrashViewWidget, self).__init__(parent=parent, *args, **kwargs)
         self.parent = parent
         self.parentWidget().setWindowTitle(
-            Config.APP_NAME + u" Gestion des element supprimer"
+            Config.APP_NAME + " Gestion des element supprimer"
         )
 
-        self.title = u"Movements"
+        self.title = "Movements"
 
         self.now = datetime.now().strftime(Config.DATEFORMAT)
 
@@ -65,7 +57,7 @@ class DebtsTrashViewWidget(FWidget):
         else:
             self.table = RapportTableWidget(parent=self)
 
-        self.button = Button(u"Ok")
+        self.button = Button("Ok")
         self.button.clicked.connect(self.refresh_period)
 
         self.add_btt = Button("Supprimer")
@@ -93,7 +85,7 @@ class DebtsTrashViewWidget(FWidget):
 
         self.search_field = LineEdit()
         self.search_field.textChanged.connect(self.search)
-        self.search_field.setPlaceholderText(u"Rechercher un compte")
+        self.search_field.setPlaceholderText("Rechercher un compte")
         self.search_field.setMaximumHeight(40)
 
         self.splt_add = QSplitter(Qt.Horizontal)
@@ -168,7 +160,6 @@ class ProviderOrClientTableWidget(QListWidget):
             self.addItem(ProviderOrClientQListWidgetItem(provid_clt))
 
     def handleClicked(self):
-
         self.provid_clt = self.currentItem()
         self.provid_clt_id = self.provid_clt.provid_clt_id
 
@@ -176,7 +167,6 @@ class ProviderOrClientTableWidget(QListWidget):
             self.parent.sub_btt.setEnabled(True)
             self.parent.add_btt.setEnabled(True)
         else:
-
             if Config.DEVISE_PEP_PROV:
                 # print("DEVISE_PEP_PROV handleClicked")
                 return
@@ -219,7 +209,7 @@ class ProviderOrClientQListWidgetItem(QListWidgetItem):
             self.setTextAlignment(Qt.AlignCenter)
 
             if not Config.DEVISE_PEP_PROV:
-                self.setText(u"Tous")
+                self.setText("Tous")
 
     @property
     def provid_clt_id(self):
@@ -231,7 +221,6 @@ class ProviderOrClientQListWidgetItem(QListWidgetItem):
 
 class RapportTableWidget(FTableWidget):
     def __init__(self, parent, *args, **kwargs):
-
         FTableWidget.__init__(self, parent=parent, *args, **kwargs)
 
         self.hheaders = ["Date", "Libelle opération", "Débit", "Crédit", "Solde", ""]
@@ -338,7 +327,7 @@ class RapportTableWidget(FTableWidget):
         #     self.balance_tt = self.totals_debit - self.totals_credit
         self.balance_tt = self.totals_credit - self.totals_debit
 
-        self.label_mov_tt = u"Totals mouvements: "
+        self.label_mov_tt = "Totals mouvements: "
         self.setItem(nb_rows, 1, TotalsWidget(self.label_mov_tt))
         self.setItem(
             nb_rows,
@@ -388,7 +377,6 @@ class RapportTableWidget(FTableWidget):
 
 class RapportCISSTableWidget(FTableWidget):
     def __init__(self, parent, *args, **kwargs):
-
         FTableWidget.__init__(self, parent=parent, *args, **kwargs)
 
         self.hheaders = [
@@ -463,7 +451,6 @@ class RapportCISSTableWidget(FTableWidget):
         ]
 
     def extend_rows(self):
-
         # self.parent.btt_pdf_export.setEnabled(True)
         # self.parent.btt_xlsx_export.setEnabled(True)
         nb_rows = self.rowCount()
@@ -490,7 +477,7 @@ class RapportCISSTableWidget(FTableWidget):
         #     self.balance_tt = self.totals_debit - self.totals_credit
         self.balance_tt = self.totals_credit - self.totals_debit
 
-        self.label_mov_tt = u"Totals mouvements: "
+        self.label_mov_tt = "Totals mouvements: "
         self.setItem(nb_rows, 1, TotalsWidget(self.label_mov_tt))
         self.setItem(
             nb_rows,

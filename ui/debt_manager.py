@@ -3,38 +3,33 @@
 # maintainer: Fadiga
 
 
-from PyQt5.QtGui import QIcon, QFont, QPixmap
-from PyQt5.QtWidgets import (
-    QSplitter,
-    QHBoxLayout,
-    QListWidget,
-    QListWidgetItem,
-    QGridLayout,
-    QMenu,
-)
 from datetime import datetime
-from PyQt5.QtCore import Qt, QSize
-
-from models import ProviderOrClient, Payment
 
 from Common.ui.common import (
-    BttExportXLSX,
     BttExportPDF,
-    FWidget,
+    BttExportXLSX,
     Button,
-    LineEdit,
     FormLabel,
+    FWidget,
+    LineEdit,
 )
 from Common.ui.table import FTableWidget, TotalsWidget
 from Common.ui.util import is_float
+from configuration import Config
 from data_helper import device_amount
-
-
+from models import Payment, ProviderOrClient
+from PyQt5.QtCore import QSize, Qt
+from PyQt5.QtGui import QFont, QIcon, QPixmap
+from PyQt5.QtWidgets import (
+    QGridLayout,
+    QHBoxLayout,
+    QListWidget,
+    QListWidgetItem,
+    QMenu,
+    QSplitter,
+)
 from ui.payment_edit_add import EditOrAddPaymentrDialog
 from ui.provider_client_edit_add import EditOrAddClientOrProviderDialog
-
-from configuration import Config
-
 
 ALL_CONTACTS = "TOUS"
 
@@ -46,9 +41,9 @@ class DebtsViewWidget(FWidget):
     def __init__(self, parent=0, *args, **kwargs):
         super(DebtsViewWidget, self).__init__(parent=parent, *args, **kwargs)
         self.parent = parent
-        self.parentWidget().setWindowTitle(Config.APP_NAME + u" Gestion des dettes")
+        self.parentWidget().setWindowTitle(Config.APP_NAME + " Gestion des dettes")
 
-        self.title = u"Movements"
+        self.title = "Movements"
 
         self.now = datetime.now().strftime(Config.DATEFORMAT)
 
@@ -60,12 +55,13 @@ class DebtsViewWidget(FWidget):
         else:
             self.table = RapportTableWidget(parent=self)
 
-        self.button = Button(u"Ok")
+        self.button = Button("Ok")
         self.button.clicked.connect(self.refresh_period)
 
-        self.btt_pdf_export = BttExportPDF("")
+        # self.btt_pdf_export = BttExportPDF("")
+        self.btt_pdf_export = Button("")
         self.btt_pdf_export.clicked.connect(self.export_pdf)
-        self.btt_xlsx_export = BttExportXLSX("")
+        self.btt_xlsx_export = Button("")
         self.btt_xlsx_export.clicked.connect(self.export_xlsx)
         self.add_btt = Button("Créditer")
         self.add_btt.setEnabled(False)
@@ -79,7 +75,7 @@ class DebtsViewWidget(FWidget):
         self.sub_btt.clicked.connect(self.sub_payment)
         self.sub_btt.setMaximumWidth(200)
         self.sub_btt.setIcon(
-            QIcon(u"{img_media}out.png".format(img_media=Config.img_media))
+            QIcon("{img_media}out.png".format(img_media=Config.img_media))
         )
         self.add_prov_btt = Button("+ Compte")
         self.add_prov_btt.setMaximumHeight(60)
@@ -98,7 +94,7 @@ class DebtsViewWidget(FWidget):
 
         self.search_field = LineEdit()
         self.search_field.textChanged.connect(self.search)
-        self.search_field.setPlaceholderText(u"Rechercher un compte")
+        self.search_field.setPlaceholderText("Rechercher un compte")
         self.search_field.setMaximumHeight(40)
 
         self.splt_add = QSplitter(Qt.Horizontal)
@@ -127,7 +123,6 @@ class DebtsViewWidget(FWidget):
         self.table.refresh_()
 
     def search(self):
-
         self.table_provid_clt.refresh_(self.search_field.text())
 
     def add_prov_or_clt(self):
@@ -231,7 +226,6 @@ class ProviderOrClientTableWidget(QListWidget):
             self.addItem(ProviderOrClientQListWidgetItem(provid_clt))
 
     def handleClicked(self):
-
         self.parent.btt_xlsx_export.setEnabled(False)
         self.provid_clt = self.currentItem()
         self.provid_clt_id = self.provid_clt.provid_clt_id
@@ -240,7 +234,6 @@ class ProviderOrClientTableWidget(QListWidget):
             self.parent.sub_btt.setEnabled(True)
             self.parent.add_btt.setEnabled(True)
         else:
-
             if Config.DEVISE_PEP_PROV:
                 # print("DEVISE_PEP_PROV handleClicked")
                 return
@@ -283,7 +276,7 @@ class ProviderOrClientQListWidgetItem(QListWidgetItem):
             self.setTextAlignment(Qt.AlignCenter)
 
             if not Config.DEVISE_PEP_PROV:
-                self.setText(u"Tous")
+                self.setText("Tous")
 
     @property
     def provid_clt_id(self):
@@ -295,7 +288,6 @@ class ProviderOrClientQListWidgetItem(QListWidgetItem):
 
 class RapportTableWidget(FTableWidget):
     def __init__(self, parent, *args, **kwargs):
-
         FTableWidget.__init__(self, parent=parent, *args, **kwargs)
 
         self.hheaders = ["Date", "Libelle opération", "Débit", "Crédit", "Solde", ""]
@@ -310,6 +302,7 @@ class RapportTableWidget(FTableWidget):
         self.ecart = -15
         self.display_vheaders = False
         # self.refresh_()
+        self.label_mov_tt = "-"
 
     def refresh_(self, provid_clt_id=None, search=None):
         """ """
@@ -360,7 +353,6 @@ class RapportTableWidget(FTableWidget):
         ]
 
     def popup(self, pos):
-
         from ui.deleteview import DeleteViewWidget
 
         # from data_helper import check_befor_update_payment
@@ -407,7 +399,7 @@ class RapportTableWidget(FTableWidget):
         #     self.balance_tt = self.totals_debit - self.totals_credit
         self.balance_tt = self.totals_credit - self.totals_debit
 
-        self.label_mov_tt = u"Totals mouvements: "
+        self.label_mov_tt = "Totals mouvements: "
         self.setItem(nb_rows, 1, TotalsWidget(self.label_mov_tt))
         self.setItem(
             nb_rows,
@@ -453,7 +445,6 @@ class RapportTableWidget(FTableWidget):
 
 class RapportCISSTableWidget(FTableWidget):
     def __init__(self, parent, *args, **kwargs):
-
         FTableWidget.__init__(self, parent=parent, *args, **kwargs)
 
         self.hheaders = [
@@ -530,7 +521,6 @@ class RapportCISSTableWidget(FTableWidget):
         ]
 
     def popup(self, pos):
-
         from ui.deleteview import DeleteViewWidget
 
         # from data_helper import check_befor_update_payment
@@ -553,7 +543,6 @@ class RapportCISSTableWidget(FTableWidget):
             )
 
     def extend_rows(self):
-
         self.parent.btt_pdf_export.setEnabled(True)
         self.parent.btt_xlsx_export.setEnabled(True)
         nb_rows = self.rowCount()
@@ -580,7 +569,7 @@ class RapportCISSTableWidget(FTableWidget):
         #     self.balance_tt = self.totals_debit - self.totals_credit
         self.balance_tt = self.totals_credit - self.totals_debit
 
-        self.label_mov_tt = u"Totals mouvements: "
+        self.label_mov_tt = "Totals mouvements: "
         self.setItem(nb_rows, 1, TotalsWidget(self.label_mov_tt))
         self.setItem(
             nb_rows,

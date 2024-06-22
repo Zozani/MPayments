@@ -2,16 +2,15 @@
 # -*- coding: utf-8 -*-
 # maintainer: fad
 
-from __future__ import unicode_literals, absolute_import, division, print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
 
+from Common.ui.cmenubar import FMenuBar
+from Common.ui.common import FWidget
+from configuration import Config
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QAction
 
 # from PyQt5.QtCore import SIGNAL
-
-from configuration import Config
-from Common.ui.common import FWidget
-from Common.ui.cmenubar import FMenuBar
 
 
 class MenuBar(FMenuBar, FWidget):
@@ -54,14 +53,12 @@ class MenuBar(FMenuBar, FWidget):
 
         for m in menu:
             el_menu = QAction(
-                QIcon("{}{}.png".format(Config.img_media, m.get("icon"))),
+                QIcon(f"{Config.img_media}{m.get('icon')}.png"),
                 m.get("name"),
                 self,
             )
             el_menu.setShortcut(m.get("shortcut"))
-            self.connect(
-                el_menu, SIGNAL("triggered()"), lambda m=m: self.goto(m.get("goto"))
-            )
+            el_menu.triggered.connect(lambda checked, m=m: self.goto(m.get("goto")))
             goto_.addSeparator()
             goto_.addAction(el_menu)
 
