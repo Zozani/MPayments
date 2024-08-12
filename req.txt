@@ -1,0 +1,23 @@
+altgraph==0.17.4
+astroid==3.2.4
+certifi==2024.6.2
+chardet==5.2.0
+charset-normalizer==3.3.2
+#Common @ file:///Users/fad/projects/DesktopApp/qt_common
+dill==0.3.8
+gettext_windows==1.0
+idna==3.7
+isort==5.13.2
+macholib==1.16.3
+mccabe==0.7.0
+packaging==24.1
+pillow==10.4.0
+platformdirs==4.2.2
+psutil==6.0.0
+pyinstaller==6.8.0
+pyinstaller-hooks-contrib==2024.7
+python-gettext==5.0
+reportlab==4.2.2
+requests==2.32.3
+tomlkit==0.13.0
+urllib3==2.2.2
