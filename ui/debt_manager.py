@@ -49,6 +49,7 @@ class DebtsViewWidget(FWidget):
 
         self.label_balance = FormLabel("")
         self.label_owner = FormLabel("")
+        print(f"djdjs %s")
 
         if Config.CISS:
             self.table = RapportCISSTableWidget(parent=self)
@@ -100,23 +101,23 @@ class DebtsViewWidget(FWidget):
         self.splt_add = QSplitter(Qt.Horizontal)
         self.splt_add.setLayout(editbox)
 
-        self.splitter_left = QSplitter(Qt.Vertical)
-        self.splitter_left.addWidget(self.search_field)
-        self.splitter_left.addWidget(self.table_provid_clt)
-        self.splitter_left.addWidget(self.add_prov_btt)
+        # self.splitter_left = QSplitter(Qt.Vertical)
+        # self.splitter_left.addWidget(self.search_field)
+        # self.splitter_left.addWidget(self.table_provid_clt)
+        # self.splitter_left.addWidget(self.add_prov_btt)
 
-        self.splt_clt = QSplitter(Qt.Vertical)
-        self.splt_clt.addWidget(self.splt_add)
-        self.splt_clt.addWidget(self.table)
-        self.splt_clt.addWidget(self.label_balance)
+        # self.splt_clt = QSplitter(Qt.Vertical)
+        # self.splt_clt.addWidget(self.splt_add)
+        # self.splt_clt.addWidget(self.table)
+        # self.splt_clt.addWidget(self.label_balance)
         # self.splt_clt.resize(900, 1000)
 
-        splitter = QSplitter(Qt.Horizontal)
-        splitter.addWidget(self.splitter_left)
-        splitter.addWidget(self.splt_clt)
+        # splitter = QSplitter(Qt.Horizontal)
+        # splitter.addWidget(self.splitter_left)
+        # splitter.addWidget(self.splt_clt)
 
         hbox = QHBoxLayout(self)
-        hbox.addWidget(splitter)
+        # hbox.addWidget(splitter)
         self.setLayout(hbox)
 
     def refresh_period(self):

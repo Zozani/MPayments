@@ -10,7 +10,7 @@ SolidCompression=yes
 [Files]
 Source: "dist\Payments.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "static\images\*"; DestDir: "{app}\static\images"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "db\my_database.db"; DestDir: "{app}\db"; Flags: ignoreversion  # Inclure la base de données
+Source: "db\database.db"; DestDir: "{app}\db"; Flags: ignoreversion  # Inclure la base de données
 
 [Icons]
 Name: "{group}\Payments"; Filename: "{app}\Payments.exe"

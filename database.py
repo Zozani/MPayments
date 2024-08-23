@@ -2,17 +2,13 @@
 # -*- encoding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4 nu
 # maintainer: Fad
-from __future__ import unicode_literals, absolute_import, division, print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 from datetime import datetime
-from models import Payment, ProviderOrClient
-from playhouse.migrate import (
-    BooleanField,
-    CharField,
-    IntegerField,
-    DateTimeField,
-)
 
 from Common.cdatabase import AdminDatabase
+from models import Payment, ProviderOrClient
+from playhouse.migrate import BooleanField, CharField, DateTimeField, IntegerField
 
 
 class Setup(AdminDatabase):
